@@ -2,14 +2,13 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyA11AtBsjU2Kr_TCGdySvB0IDt2XyfbB7E',
-  authDomain: 'stupid-first-project.firebaseapp.com',
-  projectId: 'stupid-first-project',
-  storageBucket: 'stupid-first-project.appspot.com',
-  messagingSenderId: '876050898658',
-  appId: '1:876050898658:web:d4d7add948d9a578b948bb',
+  apiKey: "AIzaSyBq5jD2uud2icF5lXZ13LAcGr9zvk_v75Q",
+  authDomain: "fire-giftr-17910.firebaseapp.com",
+  projectId: "fire-giftr-17910",
+  storageBucket: "fire-giftr-17910.appspot.com",
+  messagingSenderId: "953551576185",
+  appId: "1:953551576185:web:28a3e5fbc53d5d733a08a8"
 };
-//TODO: replace this config object with your own
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

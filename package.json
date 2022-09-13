@@ -1,14 +1,13 @@
 {
-  "name": "firestore-starter",
+  "name": "giftr-firestore",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack"
   },
   "keywords": [],
-  "author": "Steve <steve@home.org>",
+  "author": "Will Paceley",
   "license": "MIT",
   "dependencies": {
     "firebase": "^9.9.3",
