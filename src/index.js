@@ -24,13 +24,28 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 // App constants
 const people = [];
+const months = [
+  "January",
+  "Feburary",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
   addClickListeners();
   // Get people from Firestore
   await getPeople();
-});
-
+}
 function addClickListeners() {
   //set up the dom events
   document
@@ -81,20 +96,6 @@ async function getPeople() {
 
 function buildPeople(peopleArray) {
   const ul = document.querySelector(".person-list");
-  const months = [
-    "January",
-    "Feburary",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
 
   ul.innerHTML = people
     .map((person) => {
@@ -141,9 +142,32 @@ async function savePerson(ev) {
     successDialog.classList.add("active");
     // Add id field to person object to pass in parameter
     person.id = docRef.id;
-    // TODO: Update the DOM using the new object
+    // Update the DOM using the new object
+    showPerson(person);
   } catch (error) {
     console.error(`Error adding document: ${error}`);
+  }
+}
+
+function showPerson(person) {
+  const birthMonth = months[person["birth-month"] - 1];
+  const birthDay = person["birth-day"];
+  const dob = `${birthMonth} ${birthDay}`;
+
+  let li = document.querySelector(`[data-id="${person.id}"]`);
+  if (li) {
+    // If we're updating the DOM for an element that already exists
+    li.outerHTML = `<li data-id="${person.id}" class="person">
+            <p class="name">${person.name}</p>
+            <p class="dob">${dob}</p>
+          </li>`;
+  } else {
+    // If this is a new entry, create new li and add to the person-list ul
+    li = `<li data-id="${person.id}" class="person">
+            <p class="name">${person.name}</p>
+            <p class="dob">${dob}</p>
+          </li>`;
+    document.querySelector("ul.person-list").innerHTML += li;
   }
 }
 
