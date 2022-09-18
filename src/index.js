@@ -1,5 +1,12 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, getDocs } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBq5jD2uud2icF5lXZ13LAcGr9zvk_v75Q",
@@ -99,4 +106,18 @@ function buildPeople(peopleArray) {
     </li>`;
     })
     .join("");
+}
+
+/* --- GIFT IDEA FUNCTION --- */
+async function getIdeas(id) {
+  const personRef = doc(collection(db, "people"), id);
+  const docs = query(
+    collection(db, "gift-ideas"),
+    where("person-id", "==", personRef)
+  );
+  const giftsSnapshot = await getDocs(docs);
+
+  giftsSnapshot.forEach((gift) => {
+    const data = gift.data();
+  });
 }
