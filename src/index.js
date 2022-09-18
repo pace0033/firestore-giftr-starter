@@ -4,6 +4,7 @@ import {
   collection,
   doc,
   getDocs,
+  addDoc,
   query,
   where,
 } from "firebase/firestore";
@@ -25,8 +26,6 @@ const db = getFirestore(app);
 const people = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // TODO: overlay currently active by default, remove later
-  document.querySelector(".overlay").classList.remove("active");
   addClickListeners();
   // Get people from Firestore
   await getPeople();
@@ -40,12 +39,15 @@ function addClickListeners() {
   document
     .getElementById("btnCancelIdea")
     .addEventListener("click", hideOverlay);
-  document.querySelector(".overlay").addEventListener("click", hideOverlay);
+  document.getElementById("btnOkay").addEventListener("click", hideOverlay);
 
   document
     .getElementById("btnAddPerson")
     .addEventListener("click", showOverlay);
   document.getElementById("btnAddIdea").addEventListener("click", showOverlay);
+  document
+    .getElementById("btnSavePerson")
+    .addEventListener("click", savePerson);
 }
 function hideOverlay(ev) {
   ev.preventDefault();
@@ -106,6 +108,43 @@ function buildPeople(peopleArray) {
     </li>`;
     })
     .join("");
+}
+
+async function savePerson(ev) {
+  // Function called when user clicks save button from Add Person dialog
+  ev.preventDefault();
+  // DOM input elements
+  let name = document.getElementById("name").value;
+  let month = document.getElementById("month").value;
+  let day = document.getElementById("day").value;
+  // Exit the function if any input fields are empty
+  if (!name || !month || !day) return;
+
+  const person = {
+    name,
+    "birth-month": month,
+    "birth-day": day,
+  };
+
+  try {
+    const docRef = await addDoc(collection(db, "people"), person);
+    console.log(`New doc added to people collection with ID: ${docRef.id}`);
+
+    // Clear form fields
+    document.getElementById("name").value = "";
+    document.getElementById("month").value = "";
+    document.getElementById("day").value = "";
+    // Show a success message to the user
+    const successDialog = document.getElementById("dlgSuccess");
+    const successMessage = document.querySelector(".success-message");
+    successMessage.innerHTML = `Person ${name} added to database`;
+    successDialog.classList.add("active");
+    // Add id field to person object to pass in parameter
+    person.id = docRef.id;
+    // TODO: Update the DOM using the new object
+  } catch (error) {
+    console.error(`Error adding document: ${error}`);
+  }
 }
 
 /* --- GIFT IDEA FUNCTION --- */
