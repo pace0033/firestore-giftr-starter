@@ -4,54 +4,65 @@
   --very-light-orange: #ffeb9a;
   --radii: 0.4rem;
 }
+
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
   font-weight: 300;
 }
+
 html {
   font-size: 20px;
   font-family: sans-serif;
 }
+
 body {
   min-height: 100vh;
 }
+
+ul {
+  list-style: none;
+}
+
+/* --- HEADER --- */
 header,
 main {
   padding: 1rem 4rem;
 }
+
 header {
   background-color: var(--light-orange);
   border-bottom: 0.1rem solid var(--dark-orange);
 }
+
 header h1 {
   font-size: 4rem;
   font-weight: 500;
   color: #fff;
   text-shadow: 2px 2px 2px var(--dark-orange);
 }
+
 header h2 {
   font-size: 2.5rem;
   font-weight: 300;
   color: var(--dark-orange);
 }
+
+/* --- MAIN --- */
 main {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
 }
+
 main > section {
   flex-basis: 50%;
   flex-grow: 1;
   flex-shrink: 1;
 }
-section.ideas {
-  min-height: 100vh;
-  padding-left: 1rem;
-  border-left: 1px solid var(--light-orange);
-}
+
 section h2 {
   font-size: 2rem;
   color: var(--dark-orange);
@@ -71,10 +82,13 @@ section h2 > button {
   -ms-border-radius: var(--radii);
   -o-border-radius: var(--radii);
 }
-ul {
-  list-style: none;
-}
+
+/* --- PERSON SECTION --- */
+
 .person-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin: 1rem 0;
   padding: 0.5rem 2rem;
   cursor: pointer;
@@ -94,13 +108,21 @@ ul {
   color: #777;
 }
 
+/* --- IDEAS SECTION --- */
+
+section.ideas {
+  min-height: 100vh;
+  padding-left: 1rem;
+  border-left: 1px solid var(--light-orange);
+}
+
 .idea-list li.idea {
   border: 1px solid #222;
   border-radius: var(--radii);
   margin: 1rem 0;
   display: grid;
   /*usenamedgridareas*/
-  grid-template-areas: 'tab top' 'tab bottom';
+  grid-template-areas: "tab top" "tab bottom";
   grid-template-columns: 1fr 4fr;
   background-color: var(--very-light-orange);
   -webkit-border-radius: var(--radii);
@@ -117,19 +139,27 @@ ul {
   grid-area: tab;
   align-self: center;
 }
-.idea-list .idea label:has(input[type='checkbox']:checked) {
+.idea-list .idea label:has(input[type="checkbox"]:checked) {
   color: #555;
 }
-.idea-list .idea [type='checkbox'] {
+.idea-list .idea [type="checkbox"] {
   accent-color: var(--light-orange);
 }
+
+.idea-container {
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top-right-radius: 0.3rem;
+  border-bottom-right-radius: 0.3rem;
+}
+
 .idea-list p.title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   line-height: 2rem;
   padding: 0.5rem;
   color: #222;
-  background-color: #fff;
-  border-top-right-radius: 0.3rem;
   grid-area: top;
 }
 .idea-list p.location {
@@ -138,10 +168,14 @@ ul {
   padding: 0.5rem;
   font-weight: 100;
   color: #555;
-  background-color: #fff;
-  border-bottom-right-radius: 0.3rem;
   grid-area: bottom;
 }
+
+.idea-buttons {
+  margin-right: 0.5rem;
+}
+
+/* --- OVERLAY --- */
 
 section.overlay {
   position: absolute;
@@ -159,6 +193,8 @@ section.overlay.active {
   justify-content: center;
   align-items: center;
 }
+
+/* --- DIALOG --- */
 dialog {
   background-color: #fff;
   display: none;

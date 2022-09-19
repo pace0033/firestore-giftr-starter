@@ -112,8 +112,14 @@ function buildPeople(peopleArray) {
       const dob = `${birthMonth} ${birthDay}`;
 
       return `<li data-id=${person.id} class="person">
-      <p class="name">${person.name}</p>
-      <p class="dob">${dob}</p>
+      <div class="person-info">
+        <p class="name">${person.name}</p>
+        <p class="dob">${dob}</p>
+      </div>
+      <div class="person-buttons">
+        <button class="edit">Edit</button>
+        <button class="delete">Delete</button>
+      </div>
     </li>`;
     })
     .join("");
@@ -153,6 +159,8 @@ async function savePerson(ev) {
     successDialog.classList.add("active");
     // Add id field to person object to pass in parameter
     person.id = docRef.id;
+    // Save person to in-memory array
+    people.push(person);
     // Update the DOM using the new object
     showPerson(person);
   } catch (error) {
@@ -169,14 +177,26 @@ function showPerson(person) {
   if (li) {
     // If we're updating the DOM for an element that already exists
     li.outerHTML = `<li data-id="${person.id}" class="person">
+          <div class="person-info">
             <p class="name">${person.name}</p>
             <p class="dob">${dob}</p>
+          </div>
+          <div class="person-buttons">
+            <button class="edit">Edit</button>
+            <button class="delete">Delete</button>
+          </div>
           </li>`;
   } else {
     // If this is a new entry, create new li and add to the person-list ul
     li = `<li data-id="${person.id}" class="person">
-            <p class="name">${person.name}</p>
-            <p class="dob">${dob}</p>
+            <div class="person-info">
+              <p class="name">${person.name}</p>
+              <p class="dob">${dob}</p>
+            </div>
+            <div class="person-buttons">
+              <button class="edit">Edit</button>
+              <button class="delete">Delete</button>
+            </div>
           </li>`;
     document.querySelector("ul.person-list").innerHTML += li;
   }
@@ -255,8 +275,16 @@ function buildIdeas(ideas) {
             <label for="chk-${idea.id}"
               ><input type="checkbox" id="chk-${idea.id}" /> Bought</label
             >
-            <p class="title">${idea.idea}</p>
-            <p class="location">${idea.location}</p>
+            <div class="idea-container">
+              <div class="idea-info">
+                <p class="title">${idea.idea}</p>
+                <p class="location">${idea.location}</p>
+              </div>
+              <div class="idea-buttons">
+                <button class="edit">Edit</button>
+                <button class="delete">Delete</button>
+              </div>
+            </div>
           </li>`;
       })
       .join("");
