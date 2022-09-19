@@ -46,8 +46,6 @@ async function init() {
   addClickListeners();
   // Get people from Firestore
   await getPeople();
-  // TODO: Dynamically call getIdeas based on first person in People list
-  await getIdeas("2SqHyi9KUB5AIzb0oHP8");
 }
 function addClickListeners() {
   //set up the dom events
@@ -67,6 +65,9 @@ function addClickListeners() {
     .getElementById("btnSavePerson")
     .addEventListener("click", savePerson);
   document.getElementById("btnSaveIdea").addEventListener("click", saveIdea);
+  document
+    .querySelector(".person-list")
+    .addEventListener("click", handleSelectPerson);
 }
 function hideOverlay(ev) {
   ev.preventDefault();
@@ -96,6 +97,9 @@ async function getPeople() {
   });
 
   selectedPersonId = buildPeople(people);
+  //select the matching <li> by clicking on a list item
+  let li = document.querySelector(`[data-id="${selectedPersonId}"]`);
+  li.click();
 }
 
 function buildPeople(peopleArray) {
@@ -175,6 +179,39 @@ function showPerson(person) {
             <p class="dob">${dob}</p>
           </li>`;
     document.querySelector("ul.person-list").innerHTML += li;
+  }
+}
+
+// TODO: Look at this later to understand how it works
+function handleSelectPerson(ev) {
+  //ev.target; - could be the button OR anything in the ul.
+  const li = ev.target.closest(".person"); //see if there is a parent <li class="person">
+  const id = li ? li.getAttribute("data-id") : null; // if li exists then the user clicked inside an <li>
+
+  if (id) {
+    //user clicked inside li
+    selectedPersonId = id;
+    //did they click the li content OR an edit button OR a delete button?
+    if (ev.target.classList.contains("edit")) {
+      //EDIT the doc using the id to get a docRef
+      //show the dialog form to EDIT the doc (same form as ADD)
+      //Load all the Person document details into the form from docRef
+    } else if (ev.target.classList.contains("delete")) {
+      //DELETE the doc using the id to get a docRef
+      //do a confirmation before deleting
+    } else {
+      //content inside the <li> but NOT a <button> was clicked
+      //remove any previously selected styles
+      document.querySelector("li.selected")?.classList.remove("selected");
+      //Highlight the newly selected person
+      li.classList.add("selected");
+      //and load all the gift idea documents for that person
+      getIdeas(id);
+    }
+  } else {
+    //clicked a button not inside <li class="person">
+    //Show the dialog form to ADD the doc (same form as EDIT)
+    //showOverlay function can be called from here or with the click listener in DOMContentLoaded, not both
   }
 }
 
