@@ -153,10 +153,12 @@ async function savePerson(ev) {
     document.getElementById("name").value = "";
     document.getElementById("month").value = "";
     document.getElementById("day").value = "";
+    // Hide add person dialog box
+    document.getElementById("dlgPerson").classList.remove("active");
     // Show a success message to the user
     const successDialog = document.getElementById("dlgSuccess");
     const successMessage = document.querySelector(".success-message");
-    successMessage.innerHTML = `Person ${name} added to database`;
+    successMessage.innerHTML = `${name} added to your list of people.`;
     successDialog.classList.add("active");
     // Add id field to person object to pass in parameter
     person.id = docRef.id;
@@ -203,7 +205,6 @@ function showPerson(person) {
   }
 }
 
-// TODO: Look at this later to understand how it works
 function handleSelectPerson(ev) {
   //see if there is a parent <li class="person">
   const li = ev.target.closest(".person");
@@ -291,12 +292,9 @@ function buildIdeas(ideas) {
       .join("");
   } else {
     ideaList.innerHTML =
-      "<li>No gift ideas added yet for selected person.</li>";
+      '<li class="empty">No gift ideas added yet for selected person.</li>';
   }
-  // addIdeaListeners function
-  // Add listeners for li
-  //TODO: add listener for 'change' or 'input' event on EVERY checkbox '.idea [type="checkbox"]'
-  // which will call a function to update the `bought` value for the document
+  // Add click listener for ideas list
   document
     .querySelector(".idea-list")
     .addEventListener("click", ideaClickHandler);
@@ -306,7 +304,8 @@ async function ideaClickHandler(ev) {
   // listen for checkbox changes
   // listen for edit and delete button clicks
   // otherwise ignore
-  const li = ev.target.closest(".idea"); //see if there is a parent <li class="person">
+  //see if there is a parent <li class="person">
+  const li = ev.target.closest(".idea");
 
   if (li) {
     // User clicked inside an idea li

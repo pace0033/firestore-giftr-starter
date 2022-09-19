@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-CA">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -11,84 +11,101 @@
   <body>
     <header>
       <h1>Fire-Giftr</h1>
-      <h2>All Gifts Must Go!</h2>
+      <h2>Gift Tracking App</h2>
     </header>
-    <main>
-      <section class="people">
-        <h2>People <button id="btnAddPerson">Add Person</button></h2>
-        <ul class="person-list">
-          <li>No people added yet</li>
-        </ul>
+    <div class="main-container">
+      <main>
+        <section class="people">
+          <h2>People <button id="btnAddPerson">Add Person</button></h2>
+          <ul class="person-list">
+            <li class="empty">No people added yet.</li>
+          </ul>
+        </section>
+        <section class="ideas">
+          <h2>Ideas <button id="btnAddIdea">Add Idea</button></h2>
+          <ul class="idea-list">
+            <li class="empty">No gifts ideas added yet.</li>
+          </ul>
+        </section>
+      </main>
+      <section class="overlay">
+        <dialog id="dlgPerson" class="">
+          <h2>Add Person</h2>
+          <div class="dialog-container">
+            <div class="input-container">
+              <label for="name">Name:</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="person's name"
+              />
+            </div>
+            <div class="input-container">
+              <label for="month">Birth Month:</label>
+              <input
+                type="number"
+                id="month"
+                name="month"
+                min="1"
+                max="12"
+                value="1"
+              />
+            </div>
+            <div class="input-container">
+              <label for="day">Birth Day:</label>
+              <input
+                type="number"
+                id="day"
+                name="day"
+                min="1"
+                max="31"
+                value="1"
+              />
+            </div>
+            <div class="btns-container">
+              <button id="btnCancelPerson">Cancel</button>
+              <button id="btnSavePerson">Save</button>
+            </div>
+          </div>
+        </dialog>
+        <dialog id="dlgIdea" class="">
+          <h2>Add Gift Idea</h2>
+          <div class="dialog-container">
+            <div class="input-container">
+              <label for="title">Idea:</label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                placeholder="describe the gift"
+              />
+            </div>
+            <div class="input-container">
+              <label for="location">Location:</label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                placeholder="store or website"
+              />
+            </div>
+            <div class="btns-container">
+              <button id="btnCancelIdea">Cancel</button>
+              <button id="btnSaveIdea">Save</button>
+            </div>
+                  </dialog>
+                  <dialog id="dlgSuccess">
+            <h2>Success</h2>
+            <div class="dialog-container">
+              <p class="success-message">This is a default success message.</p>
+              <div class="btns-container">
+                <button id="btnOkay">Okay</button>
+              </div>
+            </div>
+          </div>
+        </dialog>
       </section>
-      <section class="ideas">
-        <h2>Ideas <button id="btnAddIdea">Add Idea</button></h2>
-        <ul class="idea-list">
-          <li>No gifts added yet</li>
-        </ul>
-      </section>
-    </main>
-    <section class="overlay">
-      <dialog id="dlgPerson" class="">
-        <h2>Add Person</h2>
-        <p>
-          <label for="name">Name:</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            placeholder="person's name"
-          />
-        </p>
-        <p>
-          <label for="month">Birth Month:</label>
-          <input
-            type="number"
-            id="month"
-            name="month"
-            min="1"
-            max="12"
-            value="1"
-          />
-        </p>
-        <p>
-          <label for="day">Birth Day:</label>
-          <input type="number" id="day" name="day" min="1" max="31" value="1" />
-        </p>
-        <p>
-          <button id="btnCancelPerson">Cancel</button>
-          <button id="btnSavePerson">Save</button>
-        </p>
-      </dialog>
-      <dialog id="dlgIdea" class="">
-        <h2>Add Gift Idea</h2>
-        <p>
-          <label for="title">Title:</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            placeholder="describe the gift"
-          />
-        </p>
-        <p>
-          <label for="location">Location:</label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            placeholder="store or website"
-          />
-        </p>
-        <p>
-          <button id="btnCancelIdea">Cancel</button>
-          <button id="btnSaveIdea">Save</button>
-        </p>
-      </dialog>
-      <dialog id="dlgSuccess">
-        <h2>Success</h2>
-        <p class="success-message">This is a default success message.</p>
-        <button id="btnOkay">Okay</button>
-      </dialog>
-    </section>
+    </div>
   </body>
 </html>

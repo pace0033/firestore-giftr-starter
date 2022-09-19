@@ -1,7 +1,8 @@
 :root {
-  --dark-orange: #f5820d;
-  --light-orange: #ffcb2a;
-  --very-light-orange: #ffeb9a;
+  --dark-primary: #f5820d;
+  --primary: #ffcb2a;
+  --light-primary: #ffeb9a;
+  --success: #28a745;
   --radii: 0.4rem;
 }
 
@@ -32,29 +33,37 @@ main {
 }
 
 header {
-  background-color: var(--light-orange);
-  border-bottom: 0.1rem solid var(--dark-orange);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--primary);
+  border-bottom: 0.1rem solid var(--dark-primary);
 }
 
 header h1 {
   font-size: 4rem;
   font-weight: 500;
   color: #fff;
-  text-shadow: 2px 2px 2px var(--dark-orange);
+  text-shadow: 2px 2px 2px var(--dark-primary);
 }
 
 header h2 {
   font-size: 2.5rem;
   font-weight: 300;
-  color: var(--dark-orange);
+  color: var(--dark-primary);
 }
 
 /* --- MAIN --- */
 main {
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: flex-start;
+}
+
+.main-container {
+  margin-inline: auto;
+  max-width: 78rem;
 }
 
 main > section {
@@ -65,16 +74,17 @@ main > section {
 
 section h2 {
   font-size: 2rem;
-  color: var(--dark-orange);
+  color: var(--dark-primary);
   display: flex;
   justify-content: space-between;
 }
+
 section h2 > button {
   margin-right: 1rem;
   padding: 0.1rem 2rem;
-  border: 1px solid var(--dark-orange);
+  border: 1px solid var(--dark-primary);
   background-color: #fff;
-  color: var(--dark-orange);
+  color: var(--dark-primary);
   border-radius: var(--radii);
   cursor: pointer;
   -webkit-border-radius: var(--radii);
@@ -85,16 +95,27 @@ section h2 > button {
 
 /* --- PERSON SECTION --- */
 
+section.people {
+  border-right: 1px solid var(--primary);
+}
+
 .person-list li {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 1rem 0;
-  padding: 0.5rem 2rem;
+  margin: 1rem 1rem 1rem 0;
+  padding: 0.5rem;
   cursor: pointer;
 }
+
+.person-list li.empty,
+.idea-list li.empty {
+  margin-top: 2rem;
+  padding: 0;
+}
+
 .person-list li.selected {
-  background-color: var(--light-orange);
+  background-color: var(--primary);
 }
 .person-list p.name {
   font-size: 1.2rem;
@@ -111,9 +132,13 @@ section h2 > button {
 /* --- IDEAS SECTION --- */
 
 section.ideas {
-  min-height: 100vh;
+  /* min-height: 100vh; */
   padding-left: 1rem;
-  border-left: 1px solid var(--light-orange);
+  /* border-left: 1px solid var(--primary); */
+}
+
+#btnAddIdea {
+  margin-right: 0;
 }
 
 .idea-list li.idea {
@@ -124,7 +149,7 @@ section.ideas {
   /*usenamedgridareas*/
   grid-template-areas: "tab top" "tab bottom";
   grid-template-columns: 1fr 4fr;
-  background-color: var(--very-light-orange);
+  background-color: var(--light-primary);
   -webkit-border-radius: var(--radii);
   -moz-border-radius: var(--radii);
   -ms-border-radius: var(--radii);
@@ -144,7 +169,7 @@ section.ideas {
   font-weight: bold;
 }
 .idea-list .idea [type="checkbox"] {
-  accent-color: var(--light-orange);
+  accent-color: var(--primary);
 }
 
 .idea-container {
@@ -203,23 +228,25 @@ dialog {
 dialog.active {
   display: block;
   margin: auto;
-  width: 50vw;
-  height: 30vh;
+  min-width: 35vw;
+  /* min-height: 32vh; */
 }
 dialog.active h2 {
-  background-color: var(--dark-orange);
+  display: block;
+  background-color: var(--dark-primary);
+  font-weight: 400;
   color: #fff;
-  padding: 1rem 3rem;
+  padding: 1rem 1.5rem;
   font-size: 2rem;
 }
-dialog.active p {
+/* dialog.active p {
   display: flex;
   margin: 1rem 3rem;
   justify-content: flex-start;
   align-items: flex-start;
-}
+} */
 dialog.active label {
-  flex-basis: 20ch;
+  flex-basis: 12ch;
   font-size: 1rem;
   font-family: inherit;
   font-weight: inherit;
@@ -229,15 +256,49 @@ dialog.active :is(input, button) {
   font-family: inherit;
   font-weight: inherit;
 }
+
+/* --- DIALOG CONTAINERS --- */
+dialog .dialog-container {
+  margin: 1.5rem;
+}
+
+dialog .input-container {
+  margin: 1.25rem 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+dialog .btns-container {
+  display: flex;
+  justify-content: center;
+}
+
+/* --- DIALOG BUTTONS --- */
 dialog button {
-  margin: 0 2rem;
-  padding: 0.1rem 2rem;
-  border: 1px solid var(--dark-orange);
+  margin: 0 1.5rem;
+  padding: 0.25rem 2rem;
+  border: 1px solid var(--dark-primary);
   background-color: #fff;
-  color: var(--dark-orange);
+  color: var(--dark-primary);
   border-radius: var(--radii);
   cursor: pointer;
 }
 :is(dialog, h2) button:active {
-  background-color: var(--light-orange);
+  background-color: var(--primary);
+}
+
+/* --- SUCCESS --- */
+#dlgSuccess h2 {
+  background-color: var(--success);
+}
+
+#dlgSuccess button {
+  background-color: var(--success);
+  border: 1.5px solid #dedede;
+  border: none;
+  color: #fff;
+}
+
+dialog .success-message {
+  margin: 1rem 0 1.5rem 0;
 }
