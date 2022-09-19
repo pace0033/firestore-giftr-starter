@@ -8,6 +8,7 @@ import {
   query,
   where,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -23,8 +24,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // get a reference to the database
 const db = getFirestore(app);
-// App constants
-const people = [];
+// Global variables
+let people = [];
 const months = [
   "January",
   "Feburary",
@@ -40,7 +41,6 @@ const months = [
   "December",
 ];
 let selectedPersonId = null;
-let collectionToDelete = null;
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -71,6 +71,9 @@ function addClickListeners() {
     .querySelector(".person-list")
     .addEventListener("click", handleSelectPerson);
   document
+    .getElementById("btnConfirmDelete")
+    .addEventListener("click", deleteDocument);
+  document
     .getElementById("btnCancelDelete")
     .addEventListener("click", hideOverlay);
 }
@@ -94,6 +97,9 @@ async function getPeople() {
   const collectionRef = collection(db, "people");
   const peopleSnapshot = await getDocs(collectionRef);
 
+  // reset the people array if it's not empty
+  if (people.length) people = [];
+
   // Populate people array with database results
   peopleSnapshot.forEach((person) => {
     const id = person.id;
@@ -101,8 +107,10 @@ async function getPeople() {
     people.push({ id, ...data });
   });
 
+  // If a person hasn't been selected yet, select the first person
   selectedPersonId = buildPeople(people);
-  //select the matching <li> by clicking on a list item
+
+  //select the <li> for the selected person by clicking on a list item
   let li = document.querySelector(`[data-id="${selectedPersonId}"]`);
   li.click();
 }
@@ -217,7 +225,6 @@ function handleSelectPerson(ev) {
     // user clicked inside li
     // set selectedPersonId to id data-attribute from li
     const id = li.getAttribute("data-id");
-    selectedPersonId = id;
 
     if (ev.target.classList.contains("edit")) {
       console.log("Edit button clicked.");
@@ -226,10 +233,11 @@ function handleSelectPerson(ev) {
       //Load all the Person document details into the form from docRef
     } else if (ev.target.classList.contains("delete")) {
       console.log("Delete button clicked.");
-      //DELETE the doc using the id to get a docRef
       //do a confirmation before deleting
+      confirmDelete("people", id);
     } else {
       //content inside the <li> but NOT a <button> was clicked
+      selectedPersonId = id;
       //remove any previously selected styles
       document.querySelector("li.selected")?.classList.remove("selected");
       //Highlight the newly selected person
@@ -389,7 +397,7 @@ async function saveIdea(ev) {
 }
 
 /* --- DELETE FUNCTIONS --- */
-async function confirmDelete(collection, id) {
+function confirmDelete(collection, id) {
   // Store the collection and id in data attributes for click handler
   const deleteButton = document.getElementById("btnConfirmDelete");
   deleteButton.dataset.id = id;
@@ -401,7 +409,32 @@ async function confirmDelete(collection, id) {
   // set delete dialog active
   const deleteDialog = document.getElementById("dlgDelete");
   deleteDialog.classList.add("active");
+}
+
+async function deleteDocument(ev) {
+  // Hide the overlay
+  hideOverlay(ev);
   //DELETE the doc using the id to get a docRef
-  //TODO: Make clickHandler that will delete the doc using
-  // the data attributes put on the confirm button
+  const id = ev.target.dataset.id;
+  const collectionName = ev.target.dataset.collection;
+  const docRef = doc(db, collectionName, id);
+  try {
+    await deleteDoc(docRef);
+    console.log(`Successfully deleted document ID #: ${docRef.id}`);
+    // update the DOM
+    const liToDelete = document.querySelector(`[data-id="${id}"]`);
+    liToDelete.outerHTML = "";
+    // remove old data attributes from delete button
+    ev.target.dataset.id = "";
+    ev.target.dataset.collection = "";
+    // If deleting person user currently has selected in UI
+    // update selectedPersonId to first person in list
+    if (selectedPersonId === id) {
+      selectedPersonId = people[0].id;
+      const li = document.querySelector(`[data-id="${selectedPersonId}"]`);
+      li.click();
+    }
+  } catch (error) {
+    console.error(`Error deleting document: ${error}`);
+  }
 }

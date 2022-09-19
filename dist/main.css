@@ -235,10 +235,9 @@ dialog.active {
 dialog.active h2 {
   display: block;
   background-color: var(--dark-primary);
-  font-weight: 400;
   color: #fff;
   padding: 1rem 1.5rem;
-  font-size: 2rem;
+  font-size: 1.75rem;
 }
 /* dialog.active p {
   display: flex;
