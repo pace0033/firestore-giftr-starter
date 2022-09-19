@@ -3,6 +3,7 @@
   --primary: #ffcb2a;
   --light-primary: #ffeb9a;
   --success: #28a745;
+  --warning: #dc3545;
   --radii: 0.4rem;
 }
 
@@ -287,7 +288,7 @@ dialog button {
   background-color: var(--primary);
 }
 
-/* --- SUCCESS --- */
+/* --- SUCCESS MESSAGE --- */
 #dlgSuccess h2 {
   background-color: var(--success);
 }
@@ -299,6 +300,25 @@ dialog button {
   color: #fff;
 }
 
-dialog .success-message {
+dialog .success-message,
+dialog .delete-message {
   margin: 1rem 0 1.5rem 0;
+}
+
+/* --- DELETE MESSAGE --- */
+#dlgDelete h2 {
+  background-color: var(--warning);
+  color: #fff;
+}
+
+#btnConfirmDelete {
+  background-color: var(--warning);
+  border: 1.5px solid var(--warning);
+  border: none;
+  color: #fff;
+}
+
+#btnCancelDelete {
+  border: 1px solid var(--warning);
+  color: var(--warning);
 }

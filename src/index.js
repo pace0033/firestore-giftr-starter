@@ -40,6 +40,7 @@ const months = [
   "December",
 ];
 let selectedPersonId = null;
+let collectionToDelete = null;
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -69,6 +70,9 @@ function addClickListeners() {
   document
     .querySelector(".person-list")
     .addEventListener("click", handleSelectPerson);
+  document
+    .getElementById("btnCancelDelete")
+    .addEventListener("click", hideOverlay);
 }
 function hideOverlay(ev) {
   ev.preventDefault();
@@ -318,8 +322,8 @@ async function ideaClickHandler(ev) {
       //Load all the Person document details into the form from docRef
     } else if (ev.target.classList.contains("delete")) {
       console.log("Delete button clicked.");
-      //DELETE the doc using the id to get a docRef
       //do a confirmation before deleting
+      confirmDelete("gift-ideas", id);
     } else if (ev.target.type === "checkbox") {
       // Returns a boolean if the checkbox has been checked
       const bought = ev.target.checked;
@@ -382,4 +386,22 @@ async function saveIdea(ev) {
     //display a mesage to the user about the problem
   }
   //TODO: update this function to work as an UPDATE method too
+}
+
+/* --- DELETE FUNCTIONS --- */
+async function confirmDelete(collection, id) {
+  // Store the collection and id in data attributes for click handler
+  const deleteButton = document.getElementById("btnConfirmDelete");
+  deleteButton.dataset.id = id;
+  deleteButton.dataset.collection = collection;
+
+  // set overlay active
+  const overlay = document.querySelector(".overlay");
+  overlay.classList.add("active");
+  // set delete dialog active
+  const deleteDialog = document.getElementById("dlgDelete");
+  deleteDialog.classList.add("active");
+  //DELETE the doc using the id to get a docRef
+  //TODO: Make clickHandler that will delete the doc using
+  // the data attributes put on the confirm button
 }
