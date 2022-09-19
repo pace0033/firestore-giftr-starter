@@ -70,7 +70,7 @@ section h2 {
   justify-content: space-between;
 }
 section h2 > button {
-  margin-right: 4rem;
+  margin-right: 1rem;
   padding: 0.1rem 2rem;
   border: 1px solid var(--dark-orange);
   background-color: #fff;
@@ -140,7 +140,8 @@ section.ideas {
   align-self: center;
 }
 .idea-list .idea label:has(input[type="checkbox"]:checked) {
-  color: #555;
+  /* color: #555; */
+  font-weight: bold;
 }
 .idea-list .idea [type="checkbox"] {
   accent-color: var(--light-orange);
@@ -202,8 +203,8 @@ dialog {
 dialog.active {
   display: block;
   margin: auto;
-  width: 80vw;
-  height: 60vh;
+  width: 50vw;
+  height: 30vh;
 }
 dialog.active h2 {
   background-color: var(--dark-orange);

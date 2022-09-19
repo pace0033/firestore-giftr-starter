@@ -204,19 +204,22 @@ function showPerson(person) {
 
 // TODO: Look at this later to understand how it works
 function handleSelectPerson(ev) {
-  //ev.target; - could be the button OR anything in the ul.
-  const li = ev.target.closest(".person"); //see if there is a parent <li class="person">
-  const id = li ? li.getAttribute("data-id") : null; // if li exists then the user clicked inside an <li>
+  //see if there is a parent <li class="person">
+  const li = ev.target.closest(".person");
 
-  if (id) {
-    //user clicked inside li
+  if (li) {
+    // user clicked inside li
+    // set selectedPersonId to id data-attribute from li
+    const id = li.getAttribute("data-id");
     selectedPersonId = id;
-    //did they click the li content OR an edit button OR a delete button?
+
     if (ev.target.classList.contains("edit")) {
+      console.log("Edit button clicked.");
       //EDIT the doc using the id to get a docRef
       //show the dialog form to EDIT the doc (same form as ADD)
       //Load all the Person document details into the form from docRef
     } else if (ev.target.classList.contains("delete")) {
+      console.log("Delete button clicked.");
       //DELETE the doc using the id to get a docRef
       //do a confirmation before deleting
     } else {
@@ -228,10 +231,6 @@ function handleSelectPerson(ev) {
       //and load all the gift idea documents for that person
       getIdeas(id);
     }
-  } else {
-    //clicked a button not inside <li class="person">
-    //Show the dialog form to ADD the doc (same form as EDIT)
-    //showOverlay function can be called from here or with the click listener in DOMContentLoaded, not both
   }
 }
 
@@ -292,8 +291,39 @@ function buildIdeas(ideas) {
     ideaList.innerHTML =
       "<li>No gift ideas added yet for selected person.</li>";
   }
+  // addIdeaListeners function
+  // Add listeners for li
   //TODO: add listener for 'change' or 'input' event on EVERY checkbox '.idea [type="checkbox"]'
   // which will call a function to update the `bought` value for the document
+  document
+    .querySelector(".idea-list")
+    .addEventListener("click", ideaClickHandler);
+}
+
+function ideaClickHandler(ev) {
+  // listen for checkbox changes
+  // listen for edit and delete button clicks
+  // otherwise ignore
+  const li = ev.target.closest(".idea"); //see if there is a parent <li class="person">
+
+  if (li) {
+    // User clicked inside an idea li
+    const id = li.getAttribute("data-id");
+
+    if (ev.target.classList.contains("edit")) {
+      console.log("Edit button clicked.");
+      //EDIT the doc using the id to get a docRef
+      //show the dialog form to EDIT the doc (same form as ADD)
+      //Load all the Person document details into the form from docRef
+    } else if (ev.target.classList.contains("delete")) {
+      console.log("Delete button clicked.");
+      //DELETE the doc using the id to get a docRef
+      //do a confirmation before deleting
+    } else if (ev.target.type === "checkbox") {
+      console.log("bought checkbox clicked");
+      console.log(`checked status: ${ev.target.checked}`);
+    }
+  }
 }
 
 async function saveIdea(ev) {
