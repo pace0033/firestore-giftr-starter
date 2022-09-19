@@ -363,15 +363,18 @@ async function saveIdea(ev) {
     const docRef = await addDoc(collection(db, "gift-ideas"), idea);
     console.log("Document written with ID: ", docRef.id);
     idea.id = docRef.id;
-    //1. clear the form fields
+    // Clear the form fields
     title = "";
     location = "";
-    //2. hide the dialog and the overlay by clicking on overlay
-    hideOverlay(ev);
-    //3. TODO: display a message to the user about success
+    // Hide the add idea dialog
+    document.getElementById("dlgIdea").classList.remove("active");
+    // Show a success message to the user
+    const successDialog = document.getElementById("dlgSuccess");
+    const successMessage = document.querySelector(".success-message");
+    successMessage.innerHTML = `${idea.idea} added to your list of gift ideas.`;
+    successDialog.classList.add("active");
 
-    //4. ADD the new HTML to the <ul> using the new object
-    //just recall the method to show all ideas for the selected person
+    // Update the DOM
     getIdeas(selectedPersonId);
   } catch (err) {
     console.error("Error adding document: ", err);
