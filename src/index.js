@@ -38,6 +38,7 @@ const months = [
   "November",
   "December",
 ];
+let selectedPersonId = null;
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -45,6 +46,8 @@ async function init() {
   addClickListeners();
   // Get people from Firestore
   await getPeople();
+  // TODO: Dynamically call getIdeas based on first person in People list
+  await getIdeas("2SqHyi9KUB5AIzb0oHP8");
 }
 function addClickListeners() {
   //set up the dom events
@@ -63,6 +66,7 @@ function addClickListeners() {
   document
     .getElementById("btnSavePerson")
     .addEventListener("click", savePerson);
+  document.getElementById("btnSaveIdea").addEventListener("click", saveIdea);
 }
 function hideOverlay(ev) {
   ev.preventDefault();
@@ -91,7 +95,7 @@ async function getPeople() {
     people.push({ id, ...data });
   });
 
-  buildPeople(people);
+  selectedPersonId = buildPeople(people);
 }
 
 function buildPeople(peopleArray) {
@@ -109,6 +113,9 @@ function buildPeople(peopleArray) {
     </li>`;
     })
     .join("");
+
+  // return the first Person's unique ID
+  return peopleArray[0].id;
 }
 
 async function savePerson(ev) {
@@ -178,9 +185,86 @@ async function getIdeas(id) {
     collection(db, "gift-ideas"),
     where("person-id", "==", personRef)
   );
-  const giftsSnapshot = await getDocs(docs);
+  const ideasSnapshot = await getDocs(docs);
+  const ideas = [];
 
-  giftsSnapshot.forEach((gift) => {
-    const data = gift.data();
+  ideasSnapshot.forEach((idea) => {
+    const data = idea.data();
+    const id = idea.id;
+
+    const ideaObj = {
+      id,
+      idea: data.idea,
+      location: data.location,
+      bought: data.bought,
+      personId: data["person-id"].id,
+      personRef: data["person-id"],
+    };
+
+    ideas.push(ideaObj);
   });
+  buildIdeas(ideas);
+}
+
+function buildIdeas(ideas) {
+  // ideas will be an array filled with idea objects
+  // derived from our database info
+  const ideaList = document.querySelector(".idea-list");
+  // Only update DOM if the database returned at least one idea
+  if (ideas.length) {
+    ideaList.innerHTML = ideas
+      .map((idea) => {
+        return `<li class="idea" data-id="${idea.id}">
+            <label for="chk-${idea.id}"
+              ><input type="checkbox" id="chk-${idea.id}" /> Bought</label
+            >
+            <p class="title">${idea.idea}</p>
+            <p class="location">${idea.location}</p>
+          </li>`;
+      })
+      .join("");
+  } else {
+    ideaList.innerHTML =
+      "<li>No gift ideas added yet for selected person.</li>";
+  }
+  //TODO: add listener for 'change' or 'input' event on EVERY checkbox '.idea [type="checkbox"]'
+  // which will call a function to update the `bought` value for the document
+}
+
+async function saveIdea(ev) {
+  // Function called when user clicks save button from Add Idea dialog
+  // DOM input elements
+  let title = document.getElementById("title").value;
+  let location = document.getElementById("location").value;
+  // Exit the function if any input fields are empty
+  if (!title || !location) return;
+
+  const personRef = doc(db, `/people/${selectedPersonId}`);
+  const idea = {
+    location,
+    idea: title,
+    bought: false,
+    "person-id": personRef,
+  };
+
+  try {
+    const docRef = await addDoc(collection(db, "gift-ideas"), idea);
+    console.log("Document written with ID: ", docRef.id);
+    idea.id = docRef.id;
+    //1. clear the form fields
+    title = "";
+    location = "";
+    //2. hide the dialog and the overlay by clicking on overlay
+    hideOverlay(ev);
+    //3. TODO: display a message to the user about success
+
+    //4. ADD the new HTML to the <ul> using the new object
+    //just recall the method to show all ideas for the selected person
+    getIdeas(selectedPersonId);
+  } catch (err) {
+    console.error("Error adding document: ", err);
+    //do you want to stay on the dialog?
+    //display a mesage to the user about the problem
+  }
+  //TODO: update this function to work as an UPDATE method too
 }
