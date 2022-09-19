@@ -7,6 +7,7 @@ import {
   addDoc,
   query,
   where,
+  updateDoc,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -272,7 +273,8 @@ function buildIdeas(ideas) {
       .map((idea) => {
         return `<li class="idea" data-id="${idea.id}">
             <label for="chk-${idea.id}"
-              ><input type="checkbox" id="chk-${idea.id}" /> Bought</label
+              ><input type="checkbox" id="chk-${idea.id}"
+              ${idea.bought ? "checked" : ""} /> Bought</label
             >
             <div class="idea-container">
               <div class="idea-info">
@@ -300,7 +302,7 @@ function buildIdeas(ideas) {
     .addEventListener("click", ideaClickHandler);
 }
 
-function ideaClickHandler(ev) {
+async function ideaClickHandler(ev) {
   // listen for checkbox changes
   // listen for edit and delete button clicks
   // otherwise ignore
@@ -320,9 +322,25 @@ function ideaClickHandler(ev) {
       //DELETE the doc using the id to get a docRef
       //do a confirmation before deleting
     } else if (ev.target.type === "checkbox") {
-      console.log("bought checkbox clicked");
-      console.log(`checked status: ${ev.target.checked}`);
+      // Returns a boolean if the checkbox has been checked
+      const bought = ev.target.checked;
+      await setBoughtStatus(id, bought);
     }
+  }
+}
+
+async function setBoughtStatus(id, bought) {
+  // get the doc reference
+  const docRef = doc(collection(db, "gift-ideas"), id);
+  // create update object with bought property
+  const docUpdate = { bought };
+
+  try {
+    await updateDoc(docRef, docUpdate);
+    console.log(`Successfully updated document ID #: ${id}`);
+    console.log(`Bought status set to ${bought}`);
+  } catch (error) {
+    console.error(`Error updating bought status on document: ${error}`);
   }
 }
 
