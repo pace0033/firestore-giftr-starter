@@ -65,8 +65,10 @@ function addListeners() {
 
   document
     .getElementById("btnAddPerson")
-    .addEventListener("click", showOverlay);
-  document.getElementById("btnAddIdea").addEventListener("click", showOverlay);
+    .addEventListener("click", showAddOverlay);
+  document
+    .getElementById("btnAddIdea")
+    .addEventListener("click", showAddOverlay);
   document
     .getElementById("btnSavePerson")
     .addEventListener("click", savePerson);
@@ -97,27 +99,53 @@ function hideOverlay(ev) {
     .querySelectorAll(".overlay dialog")
     .forEach((dialog) => dialog.classList.remove("active"));
 }
-function showOverlay(ev) {
+function showAddOverlay(ev) {
   ev.preventDefault();
   document.querySelector(".overlay").classList.add("active");
-  const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
+  let id;
+  if (ev.target.id === "btnAddPerson") {
+    id = "dlgPerson";
+    // Set dialog title back to "Add" terminology
+    const h2 = document.querySelector("#dlgPerson h2");
+    h2.textContent = "Add Person";
+    // Clear the form inputs
+    // DOM form input elements
+    document.getElementById("name").value = "";
+    document.getElementById("month").value = "";
+    document.getElementById("day").value = "";
+    // Remove any pre-existing data-id attribute
+    document.getElementById("btnSavePerson").dataset.id = "";
+  } else {
+    id = "dlgIdea";
+    // Set dialog title back to "Add" terminology
+    const h2 = document.querySelector("#dlgIdea h2");
+    h2.textContent = "Add Idea";
+  }
   //TODO: check that person is selected before adding an idea
   document.getElementById(id).classList.add("active");
 }
+function showSuccessDialog(message) {
+  // Show a success message to the user
+  const successDialog = document.getElementById("dlgSuccess");
+  const successMessage = document.querySelector(".success-message");
+  successMessage.innerHTML = message;
+  successDialog.classList.add("active");
+}
 
 /* --- ONSNAPSHOT CALLBACKS --- */
+// TODO: Finish modified and added handlers for both collections
 function handlePeopleChanges(snapshot) {
   snapshot.docChanges().forEach((change) => {
+    const id = change.doc.id;
     if (change.type === "added") {
       // NOTE: All documents in collection fire as "added" on load
-      console.log(change.doc.data());
+      // console.log(change.doc.data());
     } else if (change.type === "modified") {
-      // NOTE: onSnapshot data will only include NEW data
-      console.log("document modified in people collection");
-      console.log(change.doc.id);
-      console.log(change.doc.data());
+      const person = change.doc.data();
+      person.id = id;
+      // Update the DOM
+      showPerson(person);
     } else if (change.type === "removed") {
-      const id = change.doc.id;
       // remove li of deleted person from the DOM
       const li = document.querySelector(`[data-id="${id}"]`);
       li.outerHTML = "";
@@ -129,15 +157,15 @@ function handleGiftIdeaChanges(snapshot) {
   snapshot.docChanges().forEach((change) => {
     if (change.type === "added") {
       // NOTE: All documents in collection fire as "added" on load
-      console.log(change.doc.data());
+      // console.log(change.doc.data());
     } else if (change.type === "modified") {
       // NOTE: onSnapshot data will only include NEW data
       console.log("document modified in people collection");
       console.log(change.doc.id);
       console.log(change.doc.data());
     } else if (change.type === "removed") {
-      const id = change.doc.id;
       // remove li of deleted person from the DOM
+      const id = change.doc.id;
       const li = document.querySelector(`[data-id="${id}"]`);
       li.outerHTML = "";
     }
@@ -208,32 +236,44 @@ async function savePerson(ev) {
     "birth-month": month,
     "birth-day": day,
   };
+  const collectionRef = collection(db, "people");
 
-  try {
-    const docRef = await addDoc(collection(db, "people"), person);
-    console.log(`New doc added to people collection with ID: ${docRef.id}`);
-
-    // Clear form fields
-    document.getElementById("name").value = "";
-    document.getElementById("month").value = "";
-    document.getElementById("day").value = "";
-    // Hide add person dialog box
-    document.getElementById("dlgPerson").classList.remove("active");
-    // Show a success message to the user
-    const successDialog = document.getElementById("dlgSuccess");
-    const successMessage = document.querySelector(".success-message");
-    successMessage.innerHTML = `${name} added to your list of people.`;
-    successDialog.classList.add("active");
-    // Add id field to person object to pass in parameter
-    person.id = docRef.id;
-    // Save person to in-memory array
-    people.push(person);
-    // Update the DOM using the new object
-    showPerson(person);
-  } catch (error) {
-    console.error(`Error adding document: ${error}`);
+  // Check if save button has a data-id or not
+  const id = ev.target.dataset.id;
+  if (id) {
+    // If there's a document ID, update pre-existing document
+    try {
+      const docRef = doc(collectionRef, id);
+      await updateDoc(docRef, person);
+      console.log(`Updated pre-existing database entry for ${person.name}`);
+      // Hide edit person dialog box
+      document.getElementById("dlgPerson").classList.remove("active");
+      // Show success message
+      const message = `Successfully updated ${person.name}'s entry.`;
+      showSuccessDialog(message);
+    } catch (error) {
+      console.error(`Error updating document: ${error}`);
+    }
+  } else {
+    // If no document ID, we are creating a new document
+    try {
+      const docRef = await addDoc(collectionRef, person);
+      console.log(`New doc added to people collection with ID: ${docRef.id}`);
+      // Hide add person dialog box
+      document.getElementById("dlgPerson").classList.remove("active");
+      // Show success message
+      const message = `${name} added to your list of people.`;
+      showSuccessDialog(message);
+      // Add id field to person object to pass in parameter
+      person.id = docRef.id;
+      // Save person to in-memory array
+      people.push(person);
+      // Update the DOM using the new object
+      showPerson(person);
+    } catch (error) {
+      console.error(`Error adding new document: ${error}`);
+    }
   }
-  // TODO: Update this function to work as an update as well as adding new docs
 }
 
 function showPerson(person) {
@@ -242,6 +282,7 @@ function showPerson(person) {
   const dob = `${birthMonth} ${birthDay}`;
 
   let li = document.querySelector(`[data-id="${person.id}"]`);
+
   if (li) {
     // If we're updating the DOM for an element that already exists
     li.outerHTML = `<li data-id="${person.id}" class="person">
@@ -275,19 +316,34 @@ async function handleSelectPerson(ev) {
   const li = ev.target.closest(".person");
 
   if (li) {
-    // user clicked inside li
     // set selectedPersonId to id data-attribute from li
     const id = li.getAttribute("data-id");
+    // select the li user clicked
+    li.click();
+    selectedPersonId = id;
 
     if (ev.target.classList.contains("edit")) {
       //EDIT the doc using the id to get a docRef
       const docRef = doc(collection(db, "people"), id);
       try {
+        // Get data from Firestore
         const doc = await getDoc(docRef);
-        console.log(doc.data());
+        const data = doc.data();
         //show the dialog form to EDIT the doc (same form as ADD)
-
-        //Load all the Person document details into the form from docRef
+        document.querySelector(".overlay").classList.add("active");
+        document.getElementById("dlgPerson").classList.add("active");
+        const title = document.querySelector("#dlgPerson h2");
+        title.textContent = "Edit Person";
+        // DOM form input elements
+        const nameInput = document.getElementById("name");
+        const monthInput = document.getElementById("month");
+        const dayInput = document.getElementById("day");
+        // Load all the Person document details into the form from docRef
+        nameInput.value = data.name;
+        monthInput.value = data["birth-month"];
+        dayInput.value = data["birth-day"];
+        // Store person ID into Save button data attribute
+        document.getElementById("btnSavePerson").dataset.id = doc.id;
       } catch (error) {
         console.error(`Error fetching document during edit: ${error}`);
       }
@@ -439,10 +495,8 @@ async function saveIdea(ev) {
     // Hide the add idea dialog
     document.getElementById("dlgIdea").classList.remove("active");
     // Show a success message to the user
-    const successDialog = document.getElementById("dlgSuccess");
-    const successMessage = document.querySelector(".success-message");
-    successMessage.innerHTML = `${idea.idea} added to your list of gift ideas.`;
-    successDialog.classList.add("active");
+    const message = `${idea.idea} added to list of gift ideas.`;
+    showSuccessDialog(message);
 
     // Update the DOM
     getIdeas(selectedPersonId);
@@ -479,20 +533,33 @@ async function deleteDocument(ev) {
   try {
     await deleteDoc(docRef);
     console.log(`Successfully deleted document ID #: ${docRef.id}`);
-    // // update the DOM
-    // const liToDelete = document.querySelector(`[data-id="${id}"]`);
-    // liToDelete.outerHTML = "";
     // remove old data attributes from delete button
     ev.target.dataset.id = "";
     ev.target.dataset.collection = "";
     // If deleting person user currently has selected in UI
     // update selectedPersonId to first person in list
+    // TODO: Look into a less error-prone way to handle this
+    // e.g. what happens if I delete the first person in list?
     if (selectedPersonId === id) {
       selectedPersonId = people[0].id;
       const li = document.querySelector(`[data-id="${selectedPersonId}"]`);
       li.click();
     }
+    checkForEmptyList(collectionName);
   } catch (error) {
     console.error(`Error deleting document: ${error}`);
+  }
+}
+
+function checkForEmptyList(collection) {
+  console.log(`checking for empty ul in ${collection} collection`);
+  const classSelector = collection === "people" ? ".person-list" : ".idea-list";
+  const ul = document.querySelector(classSelector);
+  console.log(ul.hasChildNodes());
+  // If there are no items in list, add empty message
+  if (!ul.hasChildNodes()) {
+    const items = collection === "people" ? "people" : "gift ideas";
+    const li = `<li class="empty">No ${items} added yet.</li>`;
+    ul.innerHTML = li;
   }
 }
