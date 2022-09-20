@@ -9,6 +9,8 @@ import {
   where,
   updateDoc,
   deleteDoc,
+  getDoc,
+  onSnapshot,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -41,16 +43,18 @@ const months = [
   "December",
 ];
 let selectedPersonId = null;
+let unsubPeople = null;
+let unsubGiftIdeas = null;
 
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
-  addClickListeners();
+  addListeners();
   // Get people from Firestore
   await getPeople();
 }
-function addClickListeners() {
-  //set up the dom events
+function addListeners() {
+  //set up the dom click events
   document
     .getElementById("btnCancelPerson")
     .addEventListener("click", hideOverlay);
@@ -76,6 +80,15 @@ function addClickListeners() {
   document
     .getElementById("btnCancelDelete")
     .addEventListener("click", hideOverlay);
+
+  // set up the onSnapshot listeners
+  // listen for changes to people collection
+  unsubPeople = onSnapshot(collection(db, "people"), handlePeopleChanges);
+  // listen for changes gift-ideas collection
+  unsubGiftIdeas = onSnapshot(
+    collection(db, "gift-ideas"),
+    handleGiftIdeaChanges
+  );
 }
 function hideOverlay(ev) {
   ev.preventDefault();
@@ -90,6 +103,45 @@ function showOverlay(ev) {
   const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
   //TODO: check that person is selected before adding an idea
   document.getElementById(id).classList.add("active");
+}
+
+/* --- ONSNAPSHOT CALLBACKS --- */
+function handlePeopleChanges(snapshot) {
+  snapshot.docChanges().forEach((change) => {
+    if (change.type === "added") {
+      // NOTE: All documents in collection fire as "added" on load
+      console.log(change.doc.data());
+    } else if (change.type === "modified") {
+      // NOTE: onSnapshot data will only include NEW data
+      console.log("document modified in people collection");
+      console.log(change.doc.id);
+      console.log(change.doc.data());
+    } else if (change.type === "removed") {
+      const id = change.doc.id;
+      // remove li of deleted person from the DOM
+      const li = document.querySelector(`[data-id="${id}"]`);
+      li.outerHTML = "";
+    }
+  });
+}
+
+function handleGiftIdeaChanges(snapshot) {
+  snapshot.docChanges().forEach((change) => {
+    if (change.type === "added") {
+      // NOTE: All documents in collection fire as "added" on load
+      console.log(change.doc.data());
+    } else if (change.type === "modified") {
+      // NOTE: onSnapshot data will only include NEW data
+      console.log("document modified in people collection");
+      console.log(change.doc.id);
+      console.log(change.doc.data());
+    } else if (change.type === "removed") {
+      const id = change.doc.id;
+      // remove li of deleted person from the DOM
+      const li = document.querySelector(`[data-id="${id}"]`);
+      li.outerHTML = "";
+    }
+  });
 }
 
 /* --- PEOPLE FUNCTIONS --- */
@@ -181,6 +233,7 @@ async function savePerson(ev) {
   } catch (error) {
     console.error(`Error adding document: ${error}`);
   }
+  // TODO: Update this function to work as an update as well as adding new docs
 }
 
 function showPerson(person) {
@@ -217,7 +270,7 @@ function showPerson(person) {
   }
 }
 
-function handleSelectPerson(ev) {
+async function handleSelectPerson(ev) {
   //see if there is a parent <li class="person">
   const li = ev.target.closest(".person");
 
@@ -227,12 +280,18 @@ function handleSelectPerson(ev) {
     const id = li.getAttribute("data-id");
 
     if (ev.target.classList.contains("edit")) {
-      console.log("Edit button clicked.");
       //EDIT the doc using the id to get a docRef
-      //show the dialog form to EDIT the doc (same form as ADD)
-      //Load all the Person document details into the form from docRef
+      const docRef = doc(collection(db, "people"), id);
+      try {
+        const doc = await getDoc(docRef);
+        console.log(doc.data());
+        //show the dialog form to EDIT the doc (same form as ADD)
+
+        //Load all the Person document details into the form from docRef
+      } catch (error) {
+        console.error(`Error fetching document during edit: ${error}`);
+      }
     } else if (ev.target.classList.contains("delete")) {
-      console.log("Delete button clicked.");
       //do a confirmation before deleting
       confirmDelete("people", id);
     } else {
@@ -329,7 +388,6 @@ async function ideaClickHandler(ev) {
       //show the dialog form to EDIT the doc (same form as ADD)
       //Load all the Person document details into the form from docRef
     } else if (ev.target.classList.contains("delete")) {
-      console.log("Delete button clicked.");
       //do a confirmation before deleting
       confirmDelete("gift-ideas", id);
     } else if (ev.target.type === "checkbox") {
@@ -421,9 +479,9 @@ async function deleteDocument(ev) {
   try {
     await deleteDoc(docRef);
     console.log(`Successfully deleted document ID #: ${docRef.id}`);
-    // update the DOM
-    const liToDelete = document.querySelector(`[data-id="${id}"]`);
-    liToDelete.outerHTML = "";
+    // // update the DOM
+    // const liToDelete = document.querySelector(`[data-id="${id}"]`);
+    // liToDelete.outerHTML = "";
     // remove old data attributes from delete button
     ev.target.dataset.id = "";
     ev.target.dataset.collection = "";
