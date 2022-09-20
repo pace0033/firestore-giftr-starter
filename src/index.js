@@ -120,6 +120,12 @@ function showAddOverlay(ev) {
     // Set dialog title back to "Add" terminology
     const h2 = document.querySelector("#dlgIdea h2");
     h2.textContent = "Add Idea";
+    // Clear the form inputs
+    // DOM form input elements
+    document.getElementById("title").value = "";
+    document.getElementById("location").value = "";
+    // Remove any pre-existing data-id attribute
+    document.getElementById("btnSaveIdea").dataset.id = "";
   }
   //TODO: check that person is selected before adding an idea
   document.getElementById(id).classList.add("active");
@@ -437,12 +443,30 @@ async function ideaClickHandler(ev) {
   if (li) {
     // User clicked inside an idea li
     const id = li.getAttribute("data-id");
-
     if (ev.target.classList.contains("edit")) {
       console.log("Edit button clicked.");
       //EDIT the doc using the id to get a docRef
-      //show the dialog form to EDIT the doc (same form as ADD)
-      //Load all the Person document details into the form from docRef
+      const docRef = doc(collection(db, "gift-ideas"), id);
+      try {
+        // Get data from Firestore
+        const doc = await getDoc(docRef);
+        const data = doc.data();
+        //show the dialog form to EDIT the doc (same form as ADD)
+        document.querySelector(".overlay").classList.add("active");
+        document.getElementById("dlgIdea").classList.add("active");
+        const title = document.querySelector("#dlgIdea h2");
+        title.textContent = "Edit Idea";
+        // DOM form input elements
+        const ideaInput = document.getElementById("title");
+        const locationInput = document.getElementById("location");
+        // Load all the Person document details into the form from docRef
+        ideaInput.value = data.idea;
+        locationInput.value = data.location;
+        // Store doc ID into Save button data attribute
+        document.getElementById("btnSaveIdea").dataset.id = doc.id;
+      } catch (error) {
+        console.error(`Error fetching idea document during edit: ${error}`);
+      }
     } else if (ev.target.classList.contains("delete")) {
       //do a confirmation before deleting
       confirmDelete("gift-ideas", id);
@@ -485,27 +509,42 @@ async function saveIdea(ev) {
     "person-id": personRef,
   };
 
-  try {
-    const docRef = await addDoc(collection(db, "gift-ideas"), idea);
-    console.log("Document written with ID: ", docRef.id);
-    idea.id = docRef.id;
-    // Clear the form fields
-    title = "";
-    location = "";
-    // Hide the add idea dialog
-    document.getElementById("dlgIdea").classList.remove("active");
-    // Show a success message to the user
-    const message = `${idea.idea} added to list of gift ideas.`;
-    showSuccessDialog(message);
+  // Check if save button has a data-id or not
+  const id = ev.target.dataset.id;
+  if (id) {
+    // If there's a data-id attribute, update doc
+    console.log("inside the update doc saveIdea() conditional");
+    try {
+      const docRef = doc(collection(db, "gift-ideas"), id);
+      await updateDoc(docRef, idea);
+      console.log(`Updated pre-existing database entry for ${idea.idea}`);
+      // Hide edit person dialog box
+      document.getElementById("dlgIdea").classList.remove("active");
+      // Show success message
+      const message = `Successfully updated entry for ${idea.idea}.`;
+      showSuccessDialog(message);
+    } catch (error) {
+      console.error(`Error updating document: ${error}`);
+    }
+  } else {
+    // Else we are creating a new doc
+    try {
+      const docRef = await addDoc(collection(db, "gift-ideas"), idea);
+      console.log("Document written with ID: ", docRef.id);
+      // Hide the add idea dialog
+      document.getElementById("dlgIdea").classList.remove("active");
+      // Show a success message to the user
+      const message = `${idea.idea} added to list of gift ideas.`;
+      showSuccessDialog(message);
 
-    // Update the DOM
-    getIdeas(selectedPersonId);
-  } catch (err) {
-    console.error("Error adding document: ", err);
-    //do you want to stay on the dialog?
-    //display a mesage to the user about the problem
+      // Update the DOM
+      getIdeas(selectedPersonId);
+    } catch (err) {
+      console.error("Error adding document: ", err);
+      //do you want to stay on the dialog?
+      //display a mesage to the user about the problem
+    }
   }
-  //TODO: update this function to work as an UPDATE method too
 }
 
 /* --- DELETE FUNCTIONS --- */
@@ -552,10 +591,8 @@ async function deleteDocument(ev) {
 }
 
 function checkForEmptyList(collection) {
-  console.log(`checking for empty ul in ${collection} collection`);
   const classSelector = collection === "people" ? ".person-list" : ".idea-list";
   const ul = document.querySelector(classSelector);
-  console.log(ul.hasChildNodes());
   // If there are no items in list, add empty message
   if (!ul.hasChildNodes()) {
     const items = collection === "people" ? "people" : "gift ideas";
