@@ -161,19 +161,36 @@ function handlePeopleChanges(snapshot) {
 
 function handleGiftIdeaChanges(snapshot) {
   snapshot.docChanges().forEach((change) => {
+    const id = change.doc.id;
     if (change.type === "added") {
       // NOTE: All documents in collection fire as "added" on load
       // console.log(change.doc.data());
     } else if (change.type === "modified") {
-      // NOTE: onSnapshot data will only include NEW data
-      console.log("document modified in people collection");
-      console.log(change.doc.id);
-      console.log(change.doc.data());
+      // need to find li with the doc id
+      const li = document.querySelector(`[data-id="${id}"]`);
+      const data = change.doc.data();
+      // update the DOM
+      li.innerHTML = `
+            <label for="chk-${id}">
+              <input type="checkbox" id="chk-${id}"
+                ${data.bought ? "checked" : ""} /> Bought
+            </label>
+            <div class="idea-container">
+              <div class="idea-info">
+                <p class="title">${data.idea}</p>
+                <p class="location">${data.location}</p>
+              </div>
+              <div class="idea-buttons">
+                <button class="edit">Edit</button>
+                <button class="delete">Delete</button>
+              </div>
+            </div>
+      `;
     } else if (change.type === "removed") {
       // remove li of deleted person from the DOM
       const id = change.doc.id;
       const li = document.querySelector(`[data-id="${id}"]`);
-      li.outerHTML = "";
+      if (li) li.outerHTML = "";
     }
   });
 }
@@ -197,34 +214,39 @@ async function getPeople() {
   selectedPersonId = buildPeople(people);
 
   //select the <li> for the selected person by clicking on a list item
-  let li = document.querySelector(`[data-id="${selectedPersonId}"]`);
-  li.click();
+  if (selectedPersonId) {
+    let li = document.querySelector(`[data-id="${selectedPersonId}"]`);
+    li.click();
+  }
 }
 
 function buildPeople(peopleArray) {
   const ul = document.querySelector(".person-list");
 
-  ul.innerHTML = people
-    .map((person) => {
-      const birthMonth = months[person["birth-month"] - 1];
-      const birthDay = person["birth-day"];
-      const dob = `${birthMonth} ${birthDay}`;
+  if (peopleArray.length) {
+    ul.innerHTML = people
+      .map((person) => {
+        const birthMonth = months[person["birth-month"] - 1];
+        const birthDay = person["birth-day"];
+        const dob = `${birthMonth} ${birthDay}`;
 
-      return `<li data-id=${person.id} class="person">
-      <div class="person-info">
-        <p class="name">${person.name}</p>
-        <p class="dob">${dob}</p>
-      </div>
-      <div class="person-buttons">
-        <button class="edit">Edit</button>
-        <button class="delete">Delete</button>
-      </div>
-    </li>`;
-    })
-    .join("");
-
-  // return the first Person's unique ID
-  return peopleArray[0].id;
+        return `<li data-id=${person.id} class="person">
+        <div class="person-info">
+          <p class="name">${person.name}</p>
+          <p class="dob">${dob}</p>
+        </div>
+        <div class="person-buttons">
+          <button class="edit">Edit</button>
+          <button class="delete">Delete</button>
+        </div>
+      </li>`;
+      })
+      .join("");
+    // return the first Person's unique ID
+    return peopleArray[0].id;
+  } else {
+    ul.innerHTML = '<li class="empty">No people added yet.</li>';
+  }
 }
 
 async function savePerson(ev) {
@@ -283,6 +305,13 @@ async function savePerson(ev) {
 }
 
 function showPerson(person) {
+  // check if the people list ul has default empty text li
+  const emptyLi = document.querySelector(".person-list li.empty");
+  // Remove the empty text li
+  if (emptyLi) {
+    emptyLi.outerHTML = "";
+  }
+
   const birthMonth = months[person["birth-month"] - 1];
   const birthDay = person["birth-day"];
   const dob = `${birthMonth} ${birthDay}`;
@@ -314,6 +343,8 @@ function showPerson(person) {
             </div>
           </li>`;
     document.querySelector("ul.person-list").innerHTML += li;
+    const newLi = document.querySelector(`li[data-id="${person.id}"]`);
+    newLi.click();
   }
 }
 
@@ -577,12 +608,15 @@ async function deleteDocument(ev) {
     ev.target.dataset.collection = "";
     // If deleting person user currently has selected in UI
     // update selectedPersonId to first person in list
-    // TODO: Look into a less error-prone way to handle this
-    // e.g. what happens if I delete the first person in list?
-    if (selectedPersonId === id) {
-      selectedPersonId = people[0].id;
-      const li = document.querySelector(`[data-id="${selectedPersonId}"]`);
-      li.click();
+    if (collectionName === "people" && selectedPersonId === id) {
+      const firstPersonLi = document.querySelector(".person-list").firstChild;
+      // If there is an li inside the person list ul
+      if (firstPersonLi) {
+        const firstPersonId = firstPersonLi.dataset.id;
+        // set selectedPersonId to first li ID and click it
+        selectedPersonId = firstPersonId;
+        firstPersonLi.click();
+      }
     }
     checkForEmptyList(collectionName);
   } catch (error) {
