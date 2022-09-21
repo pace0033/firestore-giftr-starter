@@ -145,7 +145,11 @@ function handlePeopleChanges(snapshot) {
     const id = change.doc.id;
     if (change.type === "added") {
       // NOTE: All documents in collection fire as "added" on load
-      // console.log(change.doc.data());
+      const person = change.doc.data();
+      person.id = id;
+      const li = document.querySelector(`li[data-id="${id}"]`);
+      // If a li for the person doesn't exist yet, make one
+      if (!li) showPerson(person);
     } else if (change.type === "modified") {
       const person = change.doc.data();
       person.id = id;
@@ -343,8 +347,6 @@ function showPerson(person) {
             </div>
           </li>`;
     document.querySelector("ul.person-list").innerHTML += li;
-    const newLi = document.querySelector(`li[data-id="${person.id}"]`);
-    newLi.click();
   }
 }
 
