@@ -43,8 +43,6 @@ const months = [
   "December",
 ];
 let selectedPersonId = null;
-let unsubPeople = null;
-let unsubGiftIdeas = null;
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -85,12 +83,9 @@ function addListeners() {
 
   // set up the onSnapshot listeners
   // listen for changes to people collection
-  unsubPeople = onSnapshot(collection(db, "people"), handlePeopleChanges);
+  onSnapshot(collection(db, "people"), handlePeopleChanges);
   // listen for changes gift-ideas collection
-  unsubGiftIdeas = onSnapshot(
-    collection(db, "gift-ideas"),
-    handleGiftIdeaChanges
-  );
+  onSnapshot(collection(db, "gift-ideas"), handleGiftIdeaChanges);
 }
 function hideOverlay(ev) {
   ev.preventDefault();
@@ -167,8 +162,14 @@ function handleGiftIdeaChanges(snapshot) {
   snapshot.docChanges().forEach((change) => {
     const id = change.doc.id;
     if (change.type === "added") {
-      // NOTE: All documents in collection fire as "added" on load
-      // console.log(change.doc.data());
+      const personId = change.doc.data()["person-id"].id;
+      const li = document.querySelector(`.idea-list li[data-id="${id}"]`);
+      // If the ID of the person's gift idea is current selected person in UI
+      // And if there is no li that already exists for the idea
+      if (personId === selectedPersonId && !li) {
+        // Call getIdeas on the DB to easily rebuild the entire ideas list
+        getIdeas(personId);
+      }
     } else if (change.type === "modified") {
       // need to find li with the doc id
       const li = document.querySelector(`[data-id="${id}"]`);
@@ -477,7 +478,6 @@ async function ideaClickHandler(ev) {
     // User clicked inside an idea li
     const id = li.getAttribute("data-id");
     if (ev.target.classList.contains("edit")) {
-      console.log("Edit button clicked.");
       //EDIT the doc using the id to get a docRef
       const docRef = doc(collection(db, "gift-ideas"), id);
       try {
