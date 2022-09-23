@@ -1,10 +1,31 @@
+/* Shadow Pallete Generator by Josh Comeau
+   Link: https://www.joshwcomeau.com/shadow-palette/
+*/
+
 :root {
-  --dark-primary: #f5820d;
-  --primary: #ffcb2a;
-  --light-primary: #ffeb9a;
+  --dark-primary: rgb(19, 103, 138);
+  --primary: rgb(94, 178, 214);
+  --light-primary: rgb(92, 232, 237);
+  --highlight: #c1faff;
   --success: #28a745;
   --warning: #dc3545;
   --radii: 0.4rem;
+  --shadow-color: 0deg 0% 63%;
+  --shadow-elevation-low: 0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.31),
+    0.4px 0.8px 1px -1.1px hsl(var(--shadow-color) / 0.33),
+    1px 2px 2.6px -2.2px hsl(var(--shadow-color) / 0.36);
+  --shadow-elevation-medium: 0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.32),
+    0.9px 1.7px 2.2px -0.7px hsl(var(--shadow-color) / 0.34),
+    2.1px 4.2px 5.5px -1.5px hsl(var(--shadow-color) / 0.36),
+    5px 10px 13px -2.2px hsl(var(--shadow-color) / 0.38);
+  --shadow-elevation-high: 0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.3),
+    1.6px 3.1px 4.1px -0.3px hsl(var(--shadow-color) / 0.31),
+    2.9px 5.8px 7.5px -0.6px hsl(var(--shadow-color) / 0.32),
+    4.7px 9.4px 12.2px -1px hsl(var(--shadow-color) / 0.33),
+    7.4px 14.7px 19.1px -1.3px hsl(var(--shadow-color) / 0.34),
+    11.4px 22.7px 29.5px -1.6px hsl(var(--shadow-color) / 0.34),
+    17.1px 34.2px 44.5px -1.9px hsl(var(--shadow-color) / 0.35),
+    25px 50px 65px -2.2px hsl(var(--shadow-color) / 0.36);
 }
 
 * {
@@ -37,15 +58,16 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--primary);
+  background-color: var(--dark-primary);
   border-bottom: 0.1rem solid var(--dark-primary);
+  box-shadow: var(--shadow-elevation-medium);
 }
 
 header h1 {
   font-size: 4rem;
   font-weight: 500;
   color: #fff;
-  text-shadow: 2px 2px 2px var(--dark-primary);
+  text-shadow: 1px 1px 1px #000;
 }
 
 header h2 {
@@ -81,12 +103,14 @@ section h2 {
 }
 
 section h2 > button {
+  font-size: 0.75rem;
   margin-right: 1rem;
   padding: 0.1rem 2rem;
-  border: 1px solid var(--dark-primary);
+  border: 1.5px solid var(--dark-primary);
   background-color: #fff;
   color: var(--dark-primary);
   border-radius: var(--radii);
+  box-shadow: var(--shadow-elevation-low);
   cursor: pointer;
   -webkit-border-radius: var(--radii);
   -moz-border-radius: var(--radii);
@@ -97,7 +121,7 @@ section h2 > button {
 /* --- PERSON SECTION --- */
 
 section.people {
-  border-right: 1px solid var(--primary);
+  border-right: 1px solid var(--dark-primary);
 }
 
 .person-list li {
@@ -116,7 +140,8 @@ section.people {
 }
 
 .person-list li.selected {
-  background-color: var(--primary);
+  background-color: var(--highlight);
+  box-shadow: var(--shadow-elevation-medium);
 }
 .person-list p.name {
   font-size: 1.2rem;
@@ -127,7 +152,25 @@ section.people {
   font-size: 0.8rem;
   line-height: 1rem;
   font-weight: 100;
-  color: #777;
+  font-style: italic;
+  color: #666;
+}
+
+.person-buttons button,
+.idea-buttons button {
+  font-size: 0.75rem;
+  margin-right: 0.25rem;
+  padding: 0.25rem;
+  border: 1.5px solid var(--dark-primary);
+  background-color: #fff;
+  color: var(--dark-primary);
+  border-radius: var(--radii);
+  box-shadow: var(--shadow-elevation-low);
+  cursor: pointer;
+  -webkit-border-radius: var(--radii);
+  -moz-border-radius: var(--radii);
+  -ms-border-radius: var(--radii);
+  -o-border-radius: var(--radii);
 }
 
 /* --- IDEAS SECTION --- */
@@ -145,12 +188,13 @@ section.ideas {
 .idea-list li.idea {
   border: 1px solid #222;
   border-radius: var(--radii);
+  box-shadow: var(--shadow-elevation-medium);
   margin: 1rem 0;
   display: grid;
   /*usenamedgridareas*/
   grid-template-areas: "tab top" "tab bottom";
   grid-template-columns: 1fr 4fr;
-  background-color: var(--light-primary);
+  background-color: var(--primary);
   -webkit-border-radius: var(--radii);
   -moz-border-radius: var(--radii);
   -ms-border-radius: var(--radii);
@@ -161,7 +205,7 @@ section.ideas {
   line-height: 1rem;
   font-weight: 100;
   padding: 0.5rem;
-  color: #222;
+  color: #000;
   grid-area: tab;
   align-self: center;
 }
@@ -273,11 +317,15 @@ dialog .btns-container {
   justify-content: center;
 }
 
+dialog .btns-container button {
+  box-shadow: var(--shadow-elevation-medium);
+}
+
 /* --- DIALOG BUTTONS --- */
 dialog button {
   margin: 0 1.5rem;
   padding: 0.25rem 2rem;
-  border: 1px solid var(--dark-primary);
+  border: 1.5px solid var(--dark-primary);
   background-color: #fff;
   color: var(--dark-primary);
   border-radius: var(--radii);

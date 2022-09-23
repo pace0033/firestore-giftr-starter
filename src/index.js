@@ -241,8 +241,12 @@ function buildPeople(peopleArray) {
           <p class="dob">${dob}</p>
         </div>
         <div class="person-buttons">
-          <button class="edit">Edit</button>
-          <button class="delete">Delete</button>
+          <button class="edit">
+           Edit
+          </button>
+          <button class="delete">
+            Delete
+        </button>
         </div>
       </li>`;
       })
