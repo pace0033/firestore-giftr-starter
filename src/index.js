@@ -59,8 +59,6 @@ function addListeners() {
   document
     .getElementById("btnCancelIdea")
     .addEventListener("click", hideOverlay);
-  document.getElementById("btnOkay").addEventListener("click", hideOverlay);
-
   document
     .getElementById("btnAddPerson")
     .addEventListener("click", showAddOverlay);
@@ -131,6 +129,16 @@ function showSuccessDialog(message) {
   const successMessage = document.querySelector(".success-message");
   successMessage.innerHTML = message;
   successDialog.classList.add("active");
+
+  // Hide the overlay
+  const overlay = document.querySelector(".overlay");
+  overlay.classList.remove("active");
+
+  // Hide the success message after 4 seconds
+  setTimeout(() => {
+    successDialog.classList.remove("active");
+    successDialog.classList.add("hidden");
+  }, 4000);
 }
 
 /* --- ONSNAPSHOT CALLBACKS --- */

@@ -64,7 +64,7 @@ header {
 }
 
 header h1 {
-  font-size: 4rem;
+  font-size: 2rem;
   font-weight: 500;
   color: #fff;
   text-shadow: 1px 1px 1px #000;
@@ -336,20 +336,33 @@ dialog button {
 }
 
 /* --- SUCCESS MESSAGE --- */
+#dlgSuccess {
+  background-color: #fff;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
 #dlgSuccess h2 {
-  background-color: var(--success);
-}
-
-#dlgSuccess button {
-  background-color: var(--success);
-  border: 1.5px solid #dedede;
-  border: none;
+  font-size: 1.25rem;
+  padding: 0.5rem;
   color: #fff;
+  background-color: var(--success);
+  border-top-left-radius: 15px;
 }
 
-dialog .success-message,
-dialog .delete-message {
-  margin: 1rem 0 1.5rem 0;
+#dlgSuccess .success-message {
+  font-size: 1rem;
+  background-color: #dedede;
+  padding: 0.5rem;
+}
+
+#dlgSuccess.hidden {
+  display: none;
+}
+
+#dlgSuccess.active {
+  display: block;
 }
 
 /* --- DELETE MESSAGE --- */
@@ -368,4 +381,8 @@ dialog .delete-message {
 #btnCancelDelete {
   border: 1px solid var(--warning);
   color: var(--warning);
+}
+
+dialog .delete-message {
+  margin: 1rem 0 1.5rem 0;
 }
