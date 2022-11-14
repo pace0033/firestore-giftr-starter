@@ -12,6 +12,7 @@ import {
   getDoc,
   onSnapshot,
 } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBq5jD2uud2icF5lXZ13LAcGr9zvk_v75Q",
@@ -26,6 +27,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // get a reference to the database
 const db = getFirestore(app);
+// connect to firebase auth service
+const auth = getAuth(app);
 // Global variables
 let people = [];
 const months = [
@@ -47,10 +50,12 @@ let selectedPersonId = null;
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
+  console.log(auth);
   addListeners();
   // Get people from Firestore
   await getPeople();
 }
+
 function addListeners() {
   //set up the dom click events
   document
@@ -78,6 +83,10 @@ function addListeners() {
   document
     .getElementById("btnCancelDelete")
     .addEventListener("click", hideOverlay);
+  document.getElementById("btnLogin").addEventListener("click", logInHandler);
+  document
+    .getElementById("btnSignout")
+    .addEventListener("click", signOutHandler);
 
   // set up the onSnapshot listeners
   // listen for changes to people collection
@@ -139,6 +148,25 @@ function showSuccessDialog(message) {
     successDialog.classList.remove("active");
     successDialog.classList.add("hidden");
   }, 4000);
+}
+
+/* --- AUTH HANDLERS --- */
+async function logInHandler(ev) {
+  ev.preventDefault();
+  console.log("login button clicked");
+
+  // Hide login button and show signout button
+  ev.target.classList.add("hidden");
+  document.getElementById("btnSignout").classList.remove("hidden");
+}
+
+async function signOutHandler(ev) {
+  ev.preventDefault();
+  console.log("sign out button clicked");
+
+  // Hide signout button and show login button
+  ev.target.classList.add("hidden");
+  document.getElementById("btnLogin").classList.remove("hidden");
 }
 
 /* --- ONSNAPSHOT CALLBACKS --- */

@@ -76,6 +76,26 @@ header h2 {
   color: var(--dark-primary);
 }
 
+/* --- LOG IN / SIGN OUT --- */
+.btn-auth {
+  min-width: 5rem;
+  font-size: 1rem;
+  color: var(--dark-primary);
+  background-color: #fff;
+  border: 0;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+}
+
+.btn-auth:hover,
+.btn-auth:focus-visible {
+  text-decoration: underline;
+}
+
+header button.hidden {
+  display: none;
+}
+
 /* --- MAIN --- */
 main {
   display: flex;
