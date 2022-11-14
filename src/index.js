@@ -12,7 +12,7 @@ import {
   getDoc,
   onSnapshot,
 } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, signInWithPopup, GithubAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBq5jD2uud2icF5lXZ13LAcGr9zvk_v75Q",
@@ -29,6 +29,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 // connect to firebase auth service
 const auth = getAuth(app);
+const provider = new GithubAuthProvider();
+
 // Global variables
 let people = [];
 const months = [
@@ -50,7 +52,6 @@ let selectedPersonId = null;
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
-  console.log(auth);
   addListeners();
   // Get people from Firestore
   await getPeople();
@@ -155,9 +156,31 @@ async function logInHandler(ev) {
   ev.preventDefault();
   console.log("login button clicked");
 
-  // Hide login button and show signout button
-  ev.target.classList.add("hidden");
-  document.getElementById("btnSignout").classList.remove("hidden");
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      //IF YOU USED GITHUB PROVIDER
+      const credential = GithubAuthProvider.credentialFromResult(result);
+      const token = credential.accessToken;
+
+      // The signed-in user info.
+      const user = result.user;
+      console.log("signed in successfully");
+      console.log(user);
+
+      // Hide login button and show signout button
+      ev.target.classList.add("hidden");
+      document.getElementById("btnSignout").classList.remove("hidden");
+    })
+    .catch((error) => {
+      // Handle Errors here.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      // The email of the user's account used.
+      const email = error.customData.email;
+      // The AuthCredential type that was used.
+      const credential = GithubAuthProvider.credentialFromError(error);
+      console.error(error);
+    });
 }
 
 async function signOutHandler(ev) {
