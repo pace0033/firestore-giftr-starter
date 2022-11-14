@@ -17,6 +17,8 @@ import {
   signInWithPopup,
   signOut,
   GithubAuthProvider,
+  browserSessionPersistence,
+  setPersistence,
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -34,7 +36,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 // connect to firebase auth service
 const auth = getAuth(app);
-const provider = new GithubAuthProvider();
 
 // Global variables
 let people = [];
@@ -160,30 +161,38 @@ function showSuccessDialog(message) {
 async function logInHandler(ev) {
   ev.preventDefault();
 
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      //IF YOU USED GITHUB PROVIDER
-      const credential = GithubAuthProvider.credentialFromResult(result);
-      const token = credential.accessToken;
+  setPersistence(auth, browserSessionPersistence)
+    .then(() => {
+      const provider = new GithubAuthProvider();
 
-      // The signed-in user info.
-      const user = result.user;
-      console.log("signed in successfully");
-      console.log(user);
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          //IF YOU USED GITHUB PROVIDER
+          const credential = GithubAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken;
 
-      // Hide login button and show signout button
-      ev.target.classList.add("hidden");
-      document.getElementById("btnSignout").classList.remove("hidden");
+          // The signed-in user info.
+          const user = result.user;
+          console.log("signed in successfully");
+          console.log(user);
+
+          // Hide login button and show signout button
+          ev.target.classList.add("hidden");
+          document.getElementById("btnSignout").classList.remove("hidden");
+        })
+        .catch((error) => {
+          // Handle Errors here.
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // The email of the user's account used.
+          const email = error.customData.email;
+          // The AuthCredential type that was used.
+          const credential = GithubAuthProvider.credentialFromError(error);
+          console.error(error);
+        });
     })
-    .catch((error) => {
-      // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // The email of the user's account used.
-      const email = error.customData.email;
-      // The AuthCredential type that was used.
-      const credential = GithubAuthProvider.credentialFromError(error);
-      console.error(error);
+    .catch((err) => {
+      console.error(err);
     });
 }
 
