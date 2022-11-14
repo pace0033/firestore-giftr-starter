@@ -12,7 +12,12 @@ import {
   getDoc,
   onSnapshot,
 } from "firebase/firestore";
-import { getAuth, signInWithPopup, GithubAuthProvider } from "firebase/auth";
+import {
+  getAuth,
+  signInWithPopup,
+  signOut,
+  GithubAuthProvider,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBq5jD2uud2icF5lXZ13LAcGr9zvk_v75Q",
@@ -154,7 +159,6 @@ function showSuccessDialog(message) {
 /* --- AUTH HANDLERS --- */
 async function logInHandler(ev) {
   ev.preventDefault();
-  console.log("login button clicked");
 
   signInWithPopup(auth, provider)
     .then((result) => {
@@ -185,11 +189,17 @@ async function logInHandler(ev) {
 
 async function signOutHandler(ev) {
   ev.preventDefault();
-  console.log("sign out button clicked");
 
-  // Hide signout button and show login button
-  ev.target.classList.add("hidden");
-  document.getElementById("btnLogin").classList.remove("hidden");
+  signOut(auth)
+    .then(() => {
+      console.log("sign out successful");
+      // Hide signout button and show login button
+      ev.target.classList.add("hidden");
+      document.getElementById("btnLogin").classList.remove("hidden");
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 }
 
 /* --- ONSNAPSHOT CALLBACKS --- */
