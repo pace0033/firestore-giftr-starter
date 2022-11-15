@@ -19,6 +19,7 @@ import {
   GithubAuthProvider,
   browserSessionPersistence,
   setPersistence,
+  onAuthStateChanged,
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -54,13 +55,39 @@ const months = [
   "December",
 ];
 let selectedPersonId = null;
+let loggedIn = false;
 
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   addListeners();
-  // Get people from Firestore
-  await getPeople();
+
+  //track when the user logs in or out
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/firebase.User
+      loggedIn = true;
+
+      // Get people from Firestore
+      await getPeople();
+
+      // TODO: Show app data
+
+      // Hide login button and show signout button
+      document.getElementById("btnLogin").classList.add("hidden");
+      document.getElementById("btnSignout").classList.remove("hidden");
+    } else {
+      // User is signed out
+      loggedIn = false;
+      // Hide signout button and show login button
+      console.log("reached signout state changed");
+      document.getElementById("btnSignout").classList.add("hidden");
+      document.getElementById("btnLogin").classList.remove("hidden");
+
+      showLoginPrompt();
+    }
+  });
 }
 
 function addListeners() {
@@ -156,6 +183,20 @@ function showSuccessDialog(message) {
     successDialog.classList.add("hidden");
   }, 4000);
 }
+function showLoginPrompt() {
+  const personList = document.querySelector(".person-list");
+  const ideaList = document.querySelector(".idea-list");
+  const loginPrompt = document.querySelector(".not-logged-in");
+  const people = document.querySelector(".people");
+  const ideas = document.querySelector(".ideas");
+
+  people.classList.add("hidden");
+  ideas.classList.add("hidden");
+  loginPrompt.classList.remove("hidden");
+
+  personList.innerHTML = "";
+  ideaList.innerHTML = "";
+}
 
 /* --- AUTH HANDLERS --- */
 async function logInHandler(ev) {
@@ -175,10 +216,6 @@ async function logInHandler(ev) {
           const user = result.user;
           console.log("signed in successfully");
           console.log(user);
-
-          // Hide login button and show signout button
-          ev.target.classList.add("hidden");
-          document.getElementById("btnSignout").classList.remove("hidden");
         })
         .catch((error) => {
           // Handle Errors here.
@@ -202,9 +239,6 @@ async function signOutHandler(ev) {
   signOut(auth)
     .then(() => {
       console.log("sign out successful");
-      // Hide signout button and show login button
-      ev.target.classList.add("hidden");
-      document.getElementById("btnLogin").classList.remove("hidden");
     })
     .catch((err) => {
       console.error(err);
@@ -222,7 +256,7 @@ function handlePeopleChanges(snapshot) {
       person.id = id;
       const li = document.querySelector(`li[data-id="${id}"]`);
       // If a li for the person doesn't exist yet, make one
-      if (!li) showPerson(person);
+      if (!li && loggedIn) showPerson(person);
     } else if (change.type === "modified") {
       const person = change.doc.data();
       person.id = id;

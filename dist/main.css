@@ -48,6 +48,10 @@ ul {
   list-style: none;
 }
 
+.hidden {
+  display: none;
+}
+
 /* --- HEADER --- */
 header,
 main {
@@ -77,6 +81,7 @@ header h2 {
 }
 
 /* --- LOG IN / SIGN OUT --- */
+/* --- BUTTONS --- */
 .btn-auth {
   min-width: 5rem;
   font-size: 1rem;
@@ -94,6 +99,16 @@ header h2 {
 
 header button.hidden {
   display: none;
+}
+
+/* --- SIGN IN PROMPT --- */
+.not-logged-in {
+  text-align: center;
+}
+
+.not-logged-in h2 {
+  display: block;
+  margin-bottom: 1rem;
 }
 
 /* --- MAIN --- */
