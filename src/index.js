@@ -73,13 +73,18 @@ async function init() {
       document.getElementById("btnLogin").classList.add("hidden");
       document.getElementById("btnSignout").classList.remove("hidden");
 
+      // set up the onSnapshot listeners
+      // listen for changes to people collection
+      onSnapshot(collection(db, "people"), handlePeopleChanges);
+      // listen for changes gift-ideas collection
+      onSnapshot(collection(db, "gift-ideas"), handleGiftIdeaChanges);
+
       // Fetch and show app data
       await showApp();
     } else {
       // User is signed out
       loggedIn = false;
       // Hide signout button and show login button
-      console.log("reached signout state changed");
       document.getElementById("btnSignout").classList.add("hidden");
       document.getElementById("btnLogin").classList.remove("hidden");
 
@@ -119,12 +124,6 @@ function addListeners() {
   document
     .getElementById("btnSignout")
     .addEventListener("click", signOutHandler);
-
-  // set up the onSnapshot listeners
-  // listen for changes to people collection
-  onSnapshot(collection(db, "people"), handlePeopleChanges);
-  // listen for changes gift-ideas collection
-  onSnapshot(collection(db, "gift-ideas"), handleGiftIdeaChanges);
 }
 function hideOverlay(ev) {
   ev.preventDefault();
@@ -224,7 +223,6 @@ async function logInHandler(ev) {
           // The signed-in user info.
           const user = result.user;
           console.log("signed in successfully");
-          console.log(user);
         })
         .catch((error) => {
           // Handle Errors here.
