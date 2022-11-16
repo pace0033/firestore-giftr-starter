@@ -69,14 +69,12 @@ async function init() {
       // https://firebase.google.com/docs/reference/js/firebase.User
       loggedIn = true;
 
-      // Get people from Firestore
-      await getPeople();
-
-      // TODO: Show app data
-
       // Hide login button and show signout button
       document.getElementById("btnLogin").classList.add("hidden");
       document.getElementById("btnSignout").classList.remove("hidden");
+
+      // Fetch and show app data
+      await showApp();
     } else {
       // User is signed out
       loggedIn = false;
@@ -196,6 +194,17 @@ function showLoginPrompt() {
 
   personList.innerHTML = "";
   ideaList.innerHTML = "";
+}
+async function showApp() {
+  const loginPrompt = document.querySelector(".not-logged-in");
+  const people = document.querySelector(".people");
+  const ideas = document.querySelector(".ideas");
+
+  people.classList.remove("hidden");
+  ideas.classList.remove("hidden");
+  loginPrompt.classList.add("hidden");
+
+  await getPeople();
 }
 
 /* --- AUTH HANDLERS --- */
