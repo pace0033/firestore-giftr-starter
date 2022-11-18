@@ -134,7 +134,12 @@ function hideOverlay(ev) {
 }
 function showAddOverlay(ev) {
   ev.preventDefault();
+  // if user isn't logged in, exit function
+  if (!loggedIn) return;
+
+  // show overlay
   document.querySelector(".overlay").classList.add("active");
+
   let id;
   if (ev.target.id === "btnAddPerson") {
     id = "dlgPerson";
