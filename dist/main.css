@@ -55,13 +55,15 @@ ul {
 /* --- HEADER --- */
 header,
 main {
-  padding: 1rem 4rem;
+  padding: 1rem;
 }
 
 header {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   background-color: var(--dark-primary);
   border-bottom: 0.1rem solid var(--dark-primary);
   box-shadow: var(--shadow-elevation-medium);
@@ -114,7 +116,7 @@ header button.hidden {
 /* --- MAIN --- */
 main {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: flex-start;
 }
@@ -125,6 +127,7 @@ main {
 }
 
 main > section {
+  width: 100%;
   flex-basis: 50%;
   flex-grow: 1;
   flex-shrink: 1;
@@ -139,7 +142,6 @@ section h2 {
 
 section h2 > button {
   font-size: 0.75rem;
-  margin-right: 1rem;
   padding: 0.1rem 2rem;
   border: 1.5px solid var(--dark-primary);
   background-color: #fff;
@@ -156,14 +158,15 @@ section h2 > button {
 /* --- PERSON SECTION --- */
 
 section.people {
-  border-right: 1px solid var(--dark-primary);
+  border-bottom: 1px solid var(--dark-primary);
+  margin-bottom: 1.25rem;
 }
 
 .person-list li {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 1rem 1rem 1rem 0;
+  margin: 1rem 0;
   padding: 0.5rem;
   cursor: pointer;
 }
@@ -193,8 +196,9 @@ section.people {
 
 .person-buttons button,
 .idea-buttons button {
+  width: 100%;
   font-size: 0.75rem;
-  margin-right: 0.25rem;
+  margin-bottom: 0.5rem;
   padding: 0.25rem;
   border: 1.5px solid var(--dark-primary);
   background-color: #fff;
@@ -210,12 +214,6 @@ section.people {
 
 /* --- IDEAS SECTION --- */
 
-section.ideas {
-  /* min-height: 100vh; */
-  padding-left: 1rem;
-  /* border-left: 1px solid var(--primary); */
-}
-
 #btnAddIdea {
   margin-right: 0;
 }
@@ -228,7 +226,7 @@ section.ideas {
   display: grid;
   /*usenamedgridareas*/
   grid-template-areas: "tab top" "tab bottom";
-  grid-template-columns: 1fr 4fr;
+  grid-template-columns: 1fr 5fr;
   background-color: var(--primary);
   -webkit-border-radius: var(--radii);
   -moz-border-radius: var(--radii);
@@ -236,6 +234,8 @@ section.ideas {
   -o-border-radius: var(--radii);
 }
 .idea-list .idea label {
+  display: flex;
+  gap: 0.25rem;
   font-size: 0.8rem;
   line-height: 1rem;
   font-weight: 100;
@@ -253,17 +253,17 @@ section.ideas {
 }
 
 .idea-container {
-  background-color: #fff;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: space-between;
+  background-color: #fff;
   border-top-right-radius: 0.3rem;
   border-bottom-right-radius: 0.3rem;
 }
 
 .idea-list p.title {
   font-size: 1.1rem;
-  line-height: 2rem;
+  line-height: 1.33rem;
   padding: 0.5rem;
   color: #222;
   grid-area: top;
@@ -278,13 +278,16 @@ section.ideas {
 }
 
 .idea-buttons {
-  margin-right: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  padding-inline: 0.5rem;
 }
 
 /* --- OVERLAY --- */
 
 section.overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 100;
@@ -307,9 +310,8 @@ dialog {
 }
 dialog.active {
   display: block;
+  width: 100%;
   margin: auto;
-  min-width: 35vw;
-  /* min-height: 32vh; */
 }
 dialog.active h2 {
   display: block;
@@ -344,6 +346,7 @@ dialog .dialog-container {
 dialog .input-container {
   margin: 1.25rem 0;
   display: flex;
+  justify-content: center;
   gap: 0.5rem;
 }
 
@@ -420,4 +423,54 @@ dialog button {
 
 dialog .delete-message {
   margin: 1rem 0 1.5rem 0;
+}
+
+@media only screen and (min-width: 48em) {
+  dialog.active {
+    width: 50%;
+  }
+
+  dialog .input-container {
+    justify-content: flex-start;
+  }
+
+  header {
+    flex-direction: row;
+  }
+
+  .idea-container {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .idea-buttons {
+    width: auto;
+    display: block;
+    margin: 1rem 0.5rem 0.5rem 0;
+  }
+}
+
+@media only screen and (min-width: 64em) {
+  main {
+    flex-direction: row;
+    /* padding: 1rem 2rem; */
+  }
+
+  section.people {
+    border-right: 1px solid var(--dark-primary);
+    border-bottom: 0;
+    margin-bottom: 0;
+  }
+
+  section h2 > button {
+    margin-right: 1rem;
+  }
+
+  .person-list li {
+    margin: 1rem 1rem 1rem 0;
+  }
+
+  section.ideas {
+    padding-left: 1rem;
+  }
 }
