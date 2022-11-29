@@ -5,6 +5,7 @@ import {
   doc,
   getDocs,
   addDoc,
+  setDoc,
   query,
   where,
   updateDoc,
@@ -221,13 +222,22 @@ async function logInHandler(ev) {
 
       signInWithPopup(auth, provider)
         .then((result) => {
-          //IF YOU USED GITHUB PROVIDER
           const credential = GithubAuthProvider.credentialFromResult(result);
           const token = credential.accessToken;
 
           // The signed-in user info.
           const user = result.user;
           console.log("signed in successfully");
+
+          //call setDoc to add/update the user document in the `users` collection
+          const usersColRef = collection(db, "users");
+          setDoc(
+            doc(usersColRef, user.uid),
+            {
+              displayName: user.displayName,
+            },
+            { merge: true }
+          );
         })
         .catch((error) => {
           // Handle Errors here.
@@ -257,8 +267,12 @@ async function signOutHandler(ev) {
     });
 }
 
+async function getUser() {
+  const ref = doc(db, "users", auth.currentUser.uid);
+  return ref; //if you need the user reference
+}
+
 /* --- ONSNAPSHOT CALLBACKS --- */
-// TODO: Finish modified and added handlers for both collections
 function handlePeopleChanges(snapshot) {
   snapshot.docChanges().forEach((change) => {
     const id = change.doc.id;
@@ -326,8 +340,11 @@ function handleGiftIdeaChanges(snapshot) {
 
 /* --- PEOPLE FUNCTIONS --- */
 async function getPeople() {
+  const userRef = await getUser();
   const collectionRef = collection(db, "people");
-  const peopleSnapshot = await getDocs(collectionRef);
+  const docs = query(collectionRef, where("owner", "==", userRef));
+
+  const peopleSnapshot = await getDocs(docs);
 
   // reset the people array if it's not empty
   if (people.length) people = [];
@@ -392,10 +409,13 @@ async function savePerson(ev) {
   // Exit the function if any input fields are empty
   if (!name || !month || !day) return;
 
+  const userRef = await getUser();
+
   const person = {
     name,
     "birth-month": month,
     "birth-day": day,
+    owner: userRef,
   };
   const collectionRef = collection(db, "people");
 
