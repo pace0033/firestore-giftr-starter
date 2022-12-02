@@ -166,7 +166,6 @@ function showAddOverlay(ev) {
     // Remove any pre-existing data-id attribute
     document.getElementById("btnSaveIdea").dataset.id = "";
   }
-  //TODO: check that person is selected before adding an idea
   document.getElementById(id).classList.add("active");
 }
 function showSuccessDialog(message) {
@@ -358,7 +357,6 @@ async function getPeople() {
 
   // If a person hasn't been selected yet, select the first person
   selectedPersonId = buildPeople(people);
-
   //select the <li> for the selected person by clicking on a list item
   if (selectedPersonId) {
     let li = document.querySelector(`[data-id="${selectedPersonId}"]`);
@@ -376,7 +374,7 @@ function buildPeople(peopleArray) {
         const birthDay = person["birth-day"];
         const dob = `${birthMonth} ${birthDay}`;
 
-        return `<li data-id=${person.id} class="person">
+        return `<li data-id=${person.id} data-owner=${person.owner.id} class="person">
         <div class="person-info">
           <p class="name">${person.name}</p>
           <p class="dob">${dob}</p>
@@ -473,7 +471,7 @@ function showPerson(person) {
 
   if (li) {
     // If we're updating the DOM for an element that already exists
-    li.outerHTML = `<li data-id="${person.id}" class="person">
+    li.outerHTML = `<li data-id="${person.id}" data-owner=${person.owner.id} class="person">
           <div class="person-info">
             <p class="name">${person.name}</p>
             <p class="dob">${dob}</p>
@@ -485,7 +483,7 @@ function showPerson(person) {
           </li>`;
   } else {
     // If this is a new entry, create new li and add to the person-list ul
-    li = `<li data-id="${person.id}" class="person">
+    li = `<li data-id="${person.id}" data-owner=${person.owner.id} class="person">
             <div class="person-info">
               <p class="name">${person.name}</p>
               <p class="dob">${dob}</p>
@@ -506,16 +504,18 @@ async function handleSelectPerson(ev) {
   if (li) {
     // set selectedPersonId to id data-attribute from li
     const id = li.getAttribute("data-id");
+    const userId = li.getAttribute("data-owner");
     // select the li user clicked
     li.click();
     selectedPersonId = id;
-
     if (ev.target.classList.contains("edit")) {
       //EDIT the doc using the id to get a docRef
       const docRef = doc(collection(db, "people"), id);
       try {
         // Get data from Firestore
         const doc = await getDoc(docRef);
+        console.log("doc reference, look for owner info");
+        console.log(doc);
         const data = doc.data();
         //show the dialog form to EDIT the doc (same form as ADD)
         document.querySelector(".overlay").classList.add("active");
@@ -532,6 +532,7 @@ async function handleSelectPerson(ev) {
         dayInput.value = data["birth-day"];
         // Store person ID into Save button data attribute
         document.getElementById("btnSavePerson").dataset.id = doc.id;
+        document.getElementById("btnSavePerson").dataset.owner = userId;
       } catch (error) {
         console.error(`Error fetching document during edit: ${error}`);
       }
@@ -694,7 +695,6 @@ async function saveIdea(ev) {
   const id = ev.target.dataset.id;
   if (id) {
     // If there's a data-id attribute, update doc
-    console.log("inside the update doc saveIdea() conditional");
     try {
       const docRef = doc(collection(db, "gift-ideas"), id);
       await updateDoc(docRef, idea);
