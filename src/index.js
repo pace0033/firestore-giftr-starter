@@ -76,7 +76,10 @@ async function init() {
 
       // set up the onSnapshot listeners
       // listen for changes to people collection
-      onSnapshot(collection(db, "people"), handlePeopleChanges);
+      const userRef = await getUser();
+      const collectionRef = collection(db, "people");
+      const docs = query(collectionRef, where("owner", "==", userRef));
+      onSnapshot(docs, handlePeopleChanges);
       // listen for changes gift-ideas collection
       onSnapshot(collection(db, "gift-ideas"), handleGiftIdeaChanges);
 
